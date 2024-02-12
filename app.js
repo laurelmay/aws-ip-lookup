@@ -55,8 +55,13 @@ function getMatchesv6(ipAddress) {
 }
 
 async function handleLookup() {
-  const input = document.getElementById("input");
+  const input = document.getElementById("lookup");
   const text = input.value;
+  if (text) {
+    const newUrl = new URL(window.location);
+    newUrl.search = new URLSearchParams({ lookup: text }).toString()
+    window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
+  }
   const ipv4ishRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
   const ipv6ishRegex = /^[a-f\d:]+$/i;
   const matches = [];
@@ -92,7 +97,7 @@ function handleSubmit() {
         loading.style.display = "none";
         table.style.display = "table";
       } else {
-        const input = document.getElementById("input").value;
+        const input = document.getElementById("lookup").value;
         notFound.innerText = `It looks like '${input}' may not be within AWS-owned IP space.`;
         loading.style.display = "none";
         notFound.style.display = "block";
@@ -110,3 +115,8 @@ const ipDataResponse = await fetch(ipDataUrl);
 const ipData = await ipDataResponse.json();
 document.getElementById("form").onsubmit = () => handleSubmit();
 
+const urlInput = new URL(window.location).searchParams?.get("lookup");
+if (urlInput) {
+  document.getElementById("lookup").value = urlInput;
+  handleSubmit();
+}

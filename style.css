@@ -27,7 +27,7 @@ progress:indeterminate {
   height: 1em;
 }
 
-#input {
+input#lookup {
   width: 50%
 }
 
