@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Information on AWS IP Address</title>
+  <link rel="stylesheet" href="style.css">
+
+  <meta name="theme-color" content="#fafafa">
+  <script type="module" src="app.js"></script>
+</head>
+
+<body>
+    <h1>About</h1>
+    <a href="/">Home</a>
+    <p>
+      This uses the
+      <a href="https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html">AWS IP Ranges JSON file</a>
+      to determine if a given IP address is used by AWS and if so what service(s) and region(s) it is
+      allocated to. This information is not particularly precise and the most common services that will
+      be seen are CloudFront and EC2 (though there are other values!).
+    </p>
+    <p>
+      When a hostname is entered, rather than directly looking the value up in the JSON file, the
+      <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/">Cloudflare DNS over HTTPS API</a>
+      is used to get the IPv4 and IPv6 addresses for the given domain. Only <code>A</code> and
+      <code>AAAA</code> records will be checked.
+    </p>
+</body>
+
+</html>
+

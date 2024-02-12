@@ -1,0 +1,45 @@
+body {
+  color: #222;
+  font-size: 1em;
+  line-height: 1.4em;
+  font-family: system-ui, sans-serif;
+
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table {
+  width: 100%;
+}
+
+td,th {
+  padding: 0.25em 1em;
+  margin: 0;
+  border: 0;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #EFEFEF;
+}
+
+progress:indeterminate {
+  height: 1em;
+}
+
+#input {
+  width: 50%
+}
+
+#error-container {
+  padding: 1em;
+  background-color: #EFEFEF;
+  color: red;
+  &::first-line {
+    font-weight: bold;
+  }
+}
+
+#not-found {
+  font-style: italic;
+}

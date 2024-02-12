@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Information on AWS IP Address</title>
+  <link rel="stylesheet" href="style.css">
+
+  <meta name="theme-color" content="#fafafa">
+  <script type="module" src="app.js"></script>
+</head>
+
+<body>
+    <h1>Information about AWS IP addresses</h1>
+    <p>
+      Enter a domain name or IP address and this will provide the available information about
+      which AWS services and regions the IP address is allocated for.
+      <a href="about.html">More information</a>
+    </p>
+    <form id="form" action="javascript:void(0);">
+      <label for="input">IP Address or Hostname:</label>
+      <input type="text" id="input" name="input" required />
+      <button type="submit">Lookup</button>
+    </form>
+
+    <table id="table" style="display: none;">
+      <thead>
+        <tr>
+          <th>Address</th>
+          <th>Prefix</th>
+          <th>Region(s)</th>
+          <th>Service(s)</th>
+          <th>Network Border Group(s)</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+      </tbody>
+    </table>
+
+    <div id="loading" style="display: none;">
+      <label for="loading-progress">Loading...</label>
+      <progress id="loading-progress" />
+    </div>
+    <p id="not-found" style="display: none;"></p>
+    <p id="error-container" style="display: none;"></p>
+</body>
+
+</html>
+
