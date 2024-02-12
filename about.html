@@ -25,6 +25,12 @@
       <code>AAAA</code> records will be checked.
     </p>
     <p>
+      This also won't work if an organization is using
+      <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-byoip.html" target="_blank">Bring Your Own IP (BYOIP) addresses</a>
+      for their services. Those addresses won't appear in the <code>ip-ranges.json</code> file so they can't be
+      included here.
+    </p>
+    <p>
       You can contribute on <a href="https://github.com/kylelaker/aws-ip-lookup" target="_blank">GitHub</a>.
     </p>
 </body>

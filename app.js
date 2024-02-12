@@ -93,7 +93,7 @@ function handleSubmit() {
         table.style.display = "table";
       } else {
         const input = document.getElementById("input").value;
-        notFound.innerText = `It looks like '${input}' may not be in AWS.`;
+        notFound.innerText = `It looks like '${input}' may not be within AWS-owned IP space.`;
         loading.style.display = "none";
         notFound.style.display = "block";
       }
