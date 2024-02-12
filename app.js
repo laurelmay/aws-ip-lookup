@@ -58,7 +58,7 @@ async function handleLookup() {
   const input = document.getElementById("input");
   const text = input.value;
   const ipv4ishRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-  const ipv6ishRegex = /^[\d:]+$/;
+  const ipv6ishRegex = /^[a-f\d:]+$/i;
   const matches = [];
   if (ipv4ishRegex.test(text)) {
     matches.push(...getMatchesv4(text));
