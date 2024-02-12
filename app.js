@@ -57,7 +57,7 @@ function getMatchesv6(ipAddress) {
 async function handleLookup() {
   const input = document.getElementById("lookup");
   const text = input.value;
-  if (text) {
+  if (text && new URL(window.location).searchParams?.get("lookup") !== text) {
     const newUrl = new URL(window.location);
     newUrl.search = new URLSearchParams({ lookup: text }).toString()
     window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
@@ -115,8 +115,13 @@ const ipDataResponse = await fetch(ipDataUrl);
 const ipData = await ipDataResponse.json();
 document.getElementById("form").onsubmit = () => handleSubmit();
 
-const urlInput = new URL(window.location).searchParams?.get("lookup");
-if (urlInput) {
-  document.getElementById("lookup").value = urlInput;
-  handleSubmit();
+function loadFromUrl() {
+  const urlInput = new URL(window.location).searchParams?.get("lookup");
+  if (urlInput) {
+    document.getElementById("lookup").value = urlInput;
+    handleSubmit();
+  }
 }
+loadFromUrl();
+
+window.addEventListener('popstate', () => loadFromUrl());
