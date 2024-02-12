@@ -13,19 +13,19 @@
     <a href="index.html">Home</a>
     <p>
       This uses the
-      <a href="https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html">AWS IP Ranges JSON file</a>
+      <a href="https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html" target="_blank">AWS IP Ranges JSON file</a>
       to determine if a given IP address is used by AWS and if so what service(s) and region(s) it is
-      allocated to. This information is not particularly precise and the most common services that will
-      be seen are CloudFront and EC2 (though there are other values!).
+      allocated to. This information is not particularly precise (a lot of services are listed as EC2).
+      The specific services that can be shown are listed in the AWS documentation.
     </p>
     <p>
       When a hostname is entered, rather than directly looking the value up in the JSON file, the
-      <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/">Cloudflare DNS over HTTPS API</a>
+      <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/" target="_blank">Cloudflare DNS over HTTPS API</a>
       is used to get the IPv4 and IPv6 addresses for the given domain. Only <code>A</code> and
       <code>AAAA</code> records will be checked.
     </p>
     <p>
-      You can contribute on <a href="https://github.com/kylelaker/aws-ip-lookup">GitHub</a>.
+      You can contribute on <a href="https://github.com/kylelaker/aws-ip-lookup" target="_blank">GitHub</a>.
     </p>
 </body>
 
