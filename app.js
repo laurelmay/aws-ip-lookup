@@ -88,6 +88,7 @@ function handleSubmit() {
   const input = document.getElementById("lookup").value;
   loading.style.display = "block";
   table.style.display = "none";
+  table.style.visibility = "visible";
   errorContainer.style.display = "none";
   notFound.style.display = "none";
   handleLookup()
