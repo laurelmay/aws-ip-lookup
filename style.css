@@ -3,10 +3,8 @@ body {
   font-size: 1em;
   line-height: 1.4em;
   font-family: system-ui, sans-serif;
-
-  width: 60%;
-  margin-left: auto;
-  margin-right: auto;
+  width: calc(100% - 1em);
+  margin: 0.5em;
 }
 
 table {
@@ -27,8 +25,32 @@ progress:indeterminate {
   height: 1em;
 }
 
+
+#form {
+  border: 1px solid #222;
+  padding: 0.5em;
+  margin-bottom: 1em;
+  border-radius: 2px;
+}
+
+#form > label {
+  padding-left: 0.25em;
+}
+
 input#lookup {
-  width: 50%
+  width: 75%;
+  line-height: 2em;
+  padding: 0.5em;
+  border-radius: 5px;
+  border: 1px solid #222;
+  margin-top: 0.25em;
+}
+
+button[type=submit] {
+  line-height: 2em;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  border: 1px solid #222;
 }
 
 #error-container {
@@ -42,4 +64,31 @@ input#lookup {
 
 #not-found {
   font-style: italic;
+}
+
+#table-heading {
+  margin: 0;
+  padding: 0.25em;
+}
+
+@media print {
+  body {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  td,th,table {
+    border: 1px solid black;
+  }
+  #form {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 1260px) {
+  body {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

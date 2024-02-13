@@ -16,13 +16,17 @@
       <a href="about.html">More information</a>
     </p>
     <form id="form" action="javascript:void(0);">
-      <label for="lookup">IP Address or Hostname:</label>
+      <label for="lookup">IP Address or Hostname</label>
+      <br>
       <input type="text" id="lookup" name="lookup" required />
       <button type="submit">Lookup</button>
     </form>
 
-    <table id="table" style="display: none;">
+    <table id="table" style="display: hidden;">
       <thead>
+        <tr>
+          <th colspan="5"><h2 id="table-heading"></h2></th>
+        </tr>
         <tr>
           <th>Address</th>
           <th>Prefix</th>

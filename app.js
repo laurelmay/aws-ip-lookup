@@ -84,6 +84,8 @@ function handleSubmit() {
   const errorContainer = document.getElementById("error-container");
   const notFound = document.getElementById("not-found");
   const loading = document.getElementById("loading");
+  const heading = document.getElementById("table-heading");
+  const input = document.getElementById("lookup").value;
   loading.style.display = "block";
   table.style.display = "none";
   errorContainer.style.display = "none";
@@ -93,11 +95,11 @@ function handleSubmit() {
       if (matches?.length) {
         const rows = matches.map((match) => createRow(match));
         const tableBody = document.getElementById("table-body");
+        heading.innerText = input;
         tableBody.replaceChildren(...rows);
         loading.style.display = "none";
         table.style.display = "table";
       } else {
-        const input = document.getElementById("lookup").value;
         notFound.innerText = `It looks like '${input}' may not be within AWS-owned IP space.`;
         loading.style.display = "none";
         notFound.style.display = "block";
