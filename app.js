@@ -12,7 +12,9 @@ function createCell(text) {
 
 function createRow(match) {
   const row = document.createElement("tr");
-  row.appendChild(createCell(match.ipAddress));
+  const address = createCell(match.ipAddress);
+  address.scope = "row";
+  row.appendChild(address);
   row.appendChild(createCell(match.ip_prefix ?? match.ipv6_prefix));
   row.appendChild(createCell(match.region));
   row.appendChild(createCell(match.service));

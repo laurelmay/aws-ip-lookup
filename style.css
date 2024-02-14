@@ -1,24 +1,106 @@
+html {
+  height: 100%;
+}
+
 body {
   color: #222;
   font-size: 1em;
   line-height: 1.4em;
-  font-family: system-ui, sans-serif;
-  width: calc(100% - 1em);
-  margin: 0.5em;
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+.spread-items {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.spread-items > * {
+  width: fit-content;
+}
+
+a:has(svg), a#copyright {
+  color: #222;
+  text-decoration: none;
+  &:hover {
+    color: #222;
+    text-decoration: none;
+  }
+  &:visited {
+    color: #222;
+    text-decoration: none;
+  }
+}
+
+nav {
+  background-color: #EFEFEF;
+  line-height: 3em;
+  height: 3em;
+  display: flex;
+  span {
+    width: 100%;
+  }
+  a {
+    display: flex;
+    text-decoration: none;
+    padding: 0 1em;
+    color: #222;
+
+    &:hover {
+      background-color: #707070;
+      color: #EEE;
+    }
+  }
+}
+
+main {
+  flex-shrink: 0;
+  margin-bottom: 1em;
+}
+
+footer {
+  margin-top: auto;
+  padding: 0.5em 0.5em;
+  background-color: #EFEFEF;
 }
 
 table {
   width: 100%;
+  border-collapse: collapse;
 }
 
 td,th {
-  padding: 0.25em 1em;
+  padding: 0.5em 1em;
   margin: 0;
   border: 0;
+}
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
+  border: 1px solid #222;
 }
 
 tbody tr:nth-child(odd) {
   background-color: #EFEFEF;
+}
+
+tbody tr:hover td {
+  background-color: #707070;
+  color: #EEE;
+  cursor: pointer;
 }
 
 progress:indeterminate {
@@ -28,7 +110,7 @@ progress:indeterminate {
 
 #form {
   border: 1px solid #222;
-  padding: 0.5em;
+  padding: 0.75em;
   margin-bottom: 1em;
   border-radius: 2px;
 }
@@ -46,11 +128,19 @@ input#lookup {
   margin-top: 0.25em;
 }
 
-button[type=submit] {
+input[type=submit] {
   line-height: 2em;
   padding: 0.5em 1em;
   border-radius: 5px;
   border: 1px solid #222;
+  background-color: #EFEFEF;
+  color: #222;
+  &:hover {
+    background-color: #CCC;
+  }
+  &:active {
+    background-color: #AAA;
+  }
 }
 
 #error-container {
@@ -83,10 +173,13 @@ button[type=submit] {
   #form {
     display: none;
   }
+  nav {
+    display: none;
+  }
 }
 
 @media only screen and (min-width: 1260px) {
-  body {
+  .container {
     width: 60%;
     margin-left: auto;
     margin-right: auto;

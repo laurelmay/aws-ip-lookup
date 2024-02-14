@@ -1,54 +1,78 @@
 <!doctype html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Information on AWS IP Address</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Information on AWS IP Address</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/4ceccf1821.js" crossorigin="anonymous"></script>
+  </head>
 
-<body>
-    <h1>Information about AWS IP addresses</h1>
-    <p>
-      Enter a domain name or IP address and this will provide the available information about
-      which AWS services and regions the IP address is allocated for.
-      <a href="about.html">More information</a>
-    </p>
-    <form id="form" action="javascript:void(0);">
-      <label for="lookup">IP Address or Hostname</label>
-      <br>
-      <input type="text" id="lookup" name="lookup" required />
-      <button type="submit">Lookup</button>
-    </form>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Information about AWS IP addresses</h1>
+        <nav>
+          <a href="index.html">Lookup</a>
+          <span></span>
+          <a href="about.html">About</a>
+          <a href="https://github.com/kylelaker/aws-ip-lookup" target="_blank">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main class="container">
+      <p>
+        Enter a domain name or IP address and this will provide the available information about
+        which AWS services and regions the IP address is allocated for.
+        <a href="about.html">More information</a>
+      </p>
+      <form id="form" action="javascript:void(0);">
+        <label for="lookup">IP Address or Hostname</label>
+        <br>
+        <input type="text" id="lookup" name="lookup" required>
+        <input type="submit" value="Lookup">
+      </form>
 
-    <table id="table" style="visibility: hidden;">
-      <thead>
-        <tr>
-          <th colspan="5"><h2 id="table-heading"></h2></th>
-        </tr>
-        <tr>
-          <th>Address</th>
-          <th>Prefix</th>
-          <th>Region(s)</th>
-          <th>Service(s)</th>
-          <th>Network Border Group(s)</th>
-        </tr>
-      </thead>
-      <tbody id="table-body">
-      </tbody>
-    </table>
+      <table id="table" style="visibility: hidden;">
+        <thead>
+          <tr>
+            <th colspan="5"><h2 id="table-heading"></h2></th>
+          </tr>
+          <tr>
+            <th scope="col">Address</th>
+            <th scope="col">Prefix</th>
+            <th scope="col">Region(s)</th>
+            <th scope="col">Service(s)</th>
+            <th scope="col">Network<br>Border Group(s)</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+        </tbody>
+      </table>
 
-    <div id="loading" style="display: none;">
-      <label for="loading-progress">Loading...</label>
-      <progress id="loading-progress" />
-    </div>
-    <p id="not-found" style="display: none;"></p>
-    <p id="error-container" style="display: none;"></p>
+      <div id="loading" style="display: none;">
+        <label for="loading-progress">Loading...</label>
+        <progress id="loading-progress"></progress>
+      </div>
+      <p id="not-found" style="display: none;"></p>
+      <p id="error-container" style="display: none;"></p>
+    </main>
+
+    <footer>
+      <div class="container spread-items">
+        <div>
+          <p><a href="license.html" id="copyright">Copyright &copy; 2024 Kyle Laker</a></p>
+        </div>
+        <div>
+          <p><a href="https://github.com/kylelaker/aws-ip-lookup" target="_blank"><i class="fa-brands fa-github"></i></a></p>
+        </div>
+      </div>
+    </footer>
 
     <script type="module" src="app.js"></script>
     <script type="module" src="populate-placeholder.js"></script>
-</body>
+  </body>
 
 </html>
 
