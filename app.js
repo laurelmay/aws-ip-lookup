@@ -125,6 +125,8 @@ function loadFromUrl() {
   if (urlInput) {
     document.getElementById("lookup").value = urlInput;
     handleSubmit();
+  } else {
+    document.getElementById("lookup").focus();
   }
 }
 loadFromUrl();
