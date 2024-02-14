@@ -93,6 +93,7 @@ function handleSubmit() {
   table.style.visibility = "visible";
   errorContainer.style.display = "none";
   notFound.style.display = "none";
+  notFound.replaceChildren([]);
   handleLookup()
     .then((matches) => {
       if (matches?.length) {
@@ -103,7 +104,11 @@ function handleSubmit() {
         loading.style.display = "none";
         table.style.display = "table";
       } else {
-        notFound.innerText = `It looks like '${input}' may not be within AWS-owned IP space.`;
+        notFound.appendChild(document.createTextNode('It looks like '));
+        const codeNode = document.createElement("code");
+        codeNode.innerText = input;
+        notFound.appendChild(codeNode);
+        notFound.appendChild(document.createTextNode(' may not be within AWS-owned IP space.'));
         loading.style.display = "none";
         notFound.style.display = "block";
       }

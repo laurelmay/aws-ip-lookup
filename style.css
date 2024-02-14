@@ -154,6 +154,9 @@ input[type=submit] {
 
 #not-found {
   font-style: italic;
+  code {
+    font-style: normal;
+  }
 }
 
 #table-heading {
