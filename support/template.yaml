@@ -1,0 +1,167 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: >-
+      The name of the S3 bucket to create to store the files in
+  DomainName:
+    Type: String
+    Description: >-
+      The domain name that should be used by the CloudFront distribution to serve the
+      files
+  HostedZoneId:
+    Type: String
+    Description: >-
+      The ID of the Route 53 HostedZone for the value given as `DomainName`
+  CreateGitHubOidcProvider:
+    Type: String
+    Description: >-
+      If a GitHub OIDC Provider already exists within the account, specify false. Otherwise,
+      true must be specified
+    AllowedValues: ["true", "false"]
+  GitHubRepositoryName:
+    Type: String
+    Description: >-
+      The name of the GitHub repository, formatted as 'owner/repo'
+  GitHubRepositoryFilters:
+    Type: String
+    Description: >-
+      Additional filters to apply to the the sub claim when checking whether the
+      role can be assumed
+    Default: ref:refs/heads/main
+
+Conditions:
+  CreateOidcProvider:
+    Fn::Equals:
+      - !Ref CreateGitHubOidcProvider
+      - "true"
+
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+  AcmCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      KeyAlgorithm: EC_prime256v1
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "s3-${BucketName}"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          TargetOriginId: s3-bucket-origin
+          ViewerProtocolPolicy: https-only
+          AllowedMethods: ["GET", "HEAD"]
+          CachedMethods: ["GET", "HEAD"]
+          CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
+        DefaultRootObject: index.html
+        Origins:
+          - DomainName: !GetAtt Bucket.RegionalDomainName
+            Id: s3-bucket-origin
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !Ref OriginAccessControl
+        Enabled: true
+        IPV6Enabled: true
+        Aliases:
+          - !Ref DomainName
+        HttpVersion: http2and3
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificate
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+  GitHubOidcProvider:
+    Condition: CreateOidcProvider
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: "token.actions.githubusercontent.com"
+      ClientIdList:
+        - "sts.amazonaws.com"
+      ThumbprintList:
+        - "ffffffffffffffffffffffffffffffffffffffff"
+  DeploymentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !If
+                - CreateOidcProvider
+                # Conditionally implicitly depend on the created provider
+                - !Ref GitHubOidcProvider
+                - !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"
+            Condition:
+              StringEquals:
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                "token.actions.githubusercontent.com:sub": !Sub "repo:${GitHubRepositoryName}:${GitHubRepositoryFilters}"
+      Policies: 
+        - PolicyName: "write-to-s3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject, s3:ListBucket, s3:DeleteObject]
+                Resource:
+                  - !GetAtt Bucket.Arn
+                  - !Sub "${Bucket.Arn}/*"
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontOacReadOnly
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${Bucket.Arn}/*"
+            Condition:
+              StringEquals:
+                "AWS:SourceArn": !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
+          - Sid: AllowRoleToDeploy
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt DeploymentRole.Arn
+            Action: [s3:GetObject, s3:PutObject, s3:ListBucket, s3:DeleteObject]
+            Resource:
+              - !GetAtt Bucket.Arn
+              - !Sub "${Bucket.Arn}/*"
+  DnsRecordA:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: !Ref DomainName
+      Type: A
+      HostedZoneId: !Ref HostedZoneId
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+  DnsRecordAAAA:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: !Ref DomainName
+      Type: AAAA
+      HostedZoneId: !Ref HostedZoneId
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2

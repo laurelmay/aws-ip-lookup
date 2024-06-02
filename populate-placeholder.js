@@ -1,4 +1,5 @@
 const placeholders = [
+  "awsips.info",
   "aws.amazon.com",
   "canvas.jmu.edu",
   "checkip.amazonaws.com",

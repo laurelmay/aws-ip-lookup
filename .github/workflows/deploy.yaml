@@ -1,0 +1,32 @@
+---
+name: Deploy to S3
+
+concurrency: deploy-to-s3
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-site:
+    name: Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Clone the repository
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_ROLE_NAME }}
+          role-session-name: Deployment${{ github.run_id }}-${{ github.run_attempt }}
+          role-duration-seconds: 900
+      - name: Copy to S3
+        run: |
+          STAGING_DIR="$(mktemp -d)"
+          cp *.js *.html *.css "$STAGING_DIR/"
+          aws s3 sync "$STAGING_DIR/" s3://${{ secrets.AWS_S3_BUCKET_NAME }}
