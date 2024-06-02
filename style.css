@@ -100,7 +100,6 @@ tbody tr:nth-child(odd) {
 tbody tr:hover td {
   background-color: #707070;
   color: #EEE;
-  cursor: pointer;
 }
 
 progress:indeterminate {
@@ -145,17 +144,29 @@ input[type=submit] {
 
 #error-container {
   padding: 1em;
-  background-color: #EFEFEF;
-  color: red;
+  background-color: #FF9999;
+  border: 0.25em solid #CD5C5C;
+  color: #8B0000;
   &::first-line {
     font-weight: bold;
   }
 }
 
 #not-found {
+  padding: 1em;
+  background-color: #cff4fc;
+  border: 0.25em solid #0dcaf0;
+  color: #052c65;
   font-style: italic;
   code {
     font-style: normal;
+    font-weight: bold;
+    font-size: 1.25em;
+  }
+  &::before {
+    font-family: "Font Awesome";
+    font-style: normal;
+    content: "\f05a  ";
   }
 }
 
