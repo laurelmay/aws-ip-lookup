@@ -1,4 +1,5 @@
 import { isInSubnet } from "https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm";
+import { getIpData } from './data-store.js';
 
 function createCell(text) {
   const cell = document.createElement("td");
@@ -120,9 +121,7 @@ function handleSubmit() {
     });
 }
 
-const ipDataUrl = new URL("https://ip-ranges.amazonaws.com/ip-ranges.json");
-const ipDataResponse = await fetch(ipDataUrl);
-const ipData = await ipDataResponse.json();
+const ipData = await getIpData();
 document.getElementById("form").onsubmit = () => handleSubmit();
 
 function loadFromUrl() {
