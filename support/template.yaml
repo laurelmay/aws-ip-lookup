@@ -123,6 +123,13 @@ Resources:
                 Resource:
                   - !GetAtt Bucket.Arn
                   - !Sub "${Bucket.Arn}/*"
+        - PolicyName: "invalidate-cache"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
