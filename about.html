@@ -44,6 +44,15 @@
       <p>
         You can contribute on <a href="https://github.com/kylelaker/aws-ip-lookup" target="_blank">GitHub</a>.
       </p>
+      <p class="info-alert">
+        <strong>Note</strong>: This tool should not be used for making security decisions. While
+        DNS data is fetched directly from CloudFlare using DNS over HTTPS, the responses are
+        not validated with DNSSEC. Additionally, the <code>ip-ranges.json</code> data may be
+        cached; you should always
+        <a href="https://docs.aws.amazon.com/vpc/latest/userguide/aws-ip-ranges.html#aws-ip-download" target="_blank">download</a>
+        the latest version of the file directly from AWS after validating the TLS certificates
+        presented during the download are correct.
+      </p>
     </main>
 
     <footer>
