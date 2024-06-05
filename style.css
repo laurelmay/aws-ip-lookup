@@ -25,10 +25,6 @@ body {
   justify-content: space-between;
 }
 
-.spread-items > * {
-  width: fit-content;
-}
-
 a:has(svg), a#copyright {
   color: #222;
   text-decoration: none;
@@ -173,14 +169,6 @@ input[type=submit] {
 #table-heading {
   margin: 0;
   padding: 0.25em;
-}
-
-.flex {
-  display: flex;
-}
-
-.space-between {
-  justify-content: space-between;
 }
 
 .copy-button {

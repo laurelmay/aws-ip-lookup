@@ -26,7 +26,7 @@ function createCell(text, copyable) {
   wrapper.appendChild(span);
   if (copyable) {
     wrapper.appendChild(createCopyButton(content));
-    wrapper.classList.add('flex', 'space-between');
+    wrapper.classList.add('spread-items');
   }
   cell.appendChild(wrapper);
 
