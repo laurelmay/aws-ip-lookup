@@ -66,7 +66,7 @@ Resources:
       DistributionConfig:
         DefaultCacheBehavior:
           TargetOriginId: s3-bucket-origin
-          ViewerProtocolPolicy: https-only
+          ViewerProtocolPolicy: redirect-to-https
           AllowedMethods: ["GET", "HEAD"]
           CachedMethods: ["GET", "HEAD"]
           CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
