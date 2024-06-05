@@ -1,22 +1,44 @@
 import { isInSubnet } from "https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm";
 import { getIpData } from './data-store.js';
+import { copyText } from './copy-text.js';
 
-function createCell(text) {
+function createCopyButton(text) {
+  const icon = document.createElement('i');
+  icon.classList.add('fa-regular', 'fa-copy');
+
+  const button = document.createElement('button');
+  button.classList.add('copy-button');
+  button.title = "Copy"
+  button.appendChild(icon);
+
+  button.onclick = () => copyText(text, button, icon);
+
+  return button;
+}
+
+function createCell(text, copyable) {
   const cell = document.createElement("td");
-  if (Array.isArray(text)) {
-    cell.appendChild(document.createTextNode(text.join(", ")));
-  } else {
-    cell.appendChild(document.createTextNode(text));
+  const wrapper = document.createElement('div');
+  const span = document.createElement('span');
+  const content = Array.isArray(text) ? text.join(", ") : text;
+  span.appendChild(document.createTextNode(content));
+
+  wrapper.appendChild(span);
+  if (copyable) {
+    wrapper.appendChild(createCopyButton(content));
+    wrapper.classList.add('flex', 'space-between');
   }
+  cell.appendChild(wrapper);
+
   return cell;
 }
 
 function createRow(match) {
   const row = document.createElement("tr");
-  const address = createCell(match.ipAddress);
+  const address = createCell(match.ipAddress, true);
   address.scope = "row";
   row.appendChild(address);
-  row.appendChild(createCell(match.ip_prefix ?? match.ipv6_prefix));
+  row.appendChild(createCell(match.ip_prefix ?? match.ipv6_prefix, true));
   row.appendChild(createCell(match.region));
   row.appendChild(createCell(match.service));
   row.appendChild(createCell(match.network_border_group));

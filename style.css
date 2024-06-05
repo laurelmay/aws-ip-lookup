@@ -98,7 +98,7 @@ tbody tr:nth-child(odd) {
 }
 
 tbody tr:hover td {
-  background-color: #707070;
+  background-color: #909090;
   color: #EEE;
 }
 
@@ -173,6 +173,46 @@ input[type=submit] {
 #table-heading {
   margin: 0;
   padding: 0.25em;
+}
+
+.flex {
+  display: flex;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.copy-button {
+  margin-left: auto;
+  margin-right: 0.25em;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1em;
+  color: inherit;
+
+  &:hover {
+    border-radius: 2px;
+    background-color: #222222;
+    &.copy-success {
+      background-color: transparent;
+    }
+    &.copy-failure {
+      background-color: transparent;
+    }
+  }
+  &:active {
+    background-color: transparent;
+  }
+}
+
+.copy-success {
+  color: #00CC00;
+}
+
+.copy-failure {
+  color: red;
 }
 
 @media print {
