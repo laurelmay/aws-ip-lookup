@@ -52,6 +52,7 @@ async function lookupDnsForHostname(name, type) {
     headers: {
       'Accept': 'application/dns-json',
     },
+    signal: AbortSignal.timeout(3000),
   });
   const json = await response.json();
   return json.Answer?.filter((answer) => answer.type === typeNumber).map(({ data }) => data);
