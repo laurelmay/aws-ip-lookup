@@ -6,7 +6,6 @@ const placeholders = [
   "courtlistener.com",
   "gsa.gov",
   "ip-ranges.amazonaws.com",
-  "kylelaker.com",
   "microcenter.com",
   "mozilla.org",
   "netflix.com",
