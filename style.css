@@ -142,9 +142,35 @@ input[type=submit] {
   padding: 1em;
   background-color: #FF9999;
   border: 0.25em solid #CD5C5C;
+  border-radius: 2px;
   color: #8B0000;
   &::first-line {
     font-weight: bold;
+  }
+}
+
+.error-stack {
+  padding: 0.5em 0.5em 0;
+  border-radius: 2px;
+
+  summary {
+    margin: -0.5em -0.5em 0;
+    padding: 0.5em;
+  }
+
+  .error-stack-details {
+    margin: 0;
+  }
+}
+
+.error-stack[open] {
+  width: fit-content;
+  border: 1px solid #CD5C5C;
+  padding: 0.5em;
+
+  summary {
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #CD5C5C;
   }
 }
 

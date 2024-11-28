@@ -143,7 +143,34 @@ function handleSubmit() {
       }
     })
     .catch((error) => {
-      errorContainer.innerText = "Unable to load data\n" + error + "\n" + error.stack;
+      const errorHead = document.createElement('span');
+      const errorMessage = document.createElement('span')
+      errorHead.className = 'error-head';
+      errorHead.innerText = 'Unable to load data';
+      errorMessage.className = 'error-message';
+      errorMessage.innerText = error.toString();
+
+
+      errorContainer.replaceChildren(
+        errorHead,
+        document.createElement('br'),
+        errorMessage,
+        document.createElement('br'),
+      );
+
+      if (error.stack) {
+        const errorStack = document.createElement('details');
+        const errorStackSummary = document.createElement('summary');
+        const errorStackDetails = document.createElement('pre');
+        errorStackSummary.innerText = 'Error details';
+        errorStackDetails.className = 'error-stack-details';
+        errorStackDetails.innerText = error.stack;
+        errorStack.className = 'error-stack';
+        errorStack.appendChild(errorStackSummary);
+        errorStack.appendChild(errorStackDetails);
+        errorContainer.appendChild(errorStack);
+      }
+
       loading.style.display = "none";
       errorContainer.style.display = "block";
     });
