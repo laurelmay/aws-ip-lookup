@@ -82,7 +82,13 @@ function getMatchesv6(ipAddress) {
 
 async function handleLookup() {
   const input = document.getElementById("lookup");
-  const text = input.value;
+  if (!input.value && input.placeholder) {
+    input.value = input.placeholder;
+  }
+  const text = input.value?.trim();
+  if (!text) {
+    throw new Error('A value to lookup must be provided');
+  }
   if (text && new URL(window.location).searchParams?.get("lookup") !== text) {
     const newUrl = new URL(window.location);
     newUrl.search = new URLSearchParams({ lookup: text }).toString()
