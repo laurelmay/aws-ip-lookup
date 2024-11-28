@@ -30,8 +30,9 @@ async function populateCache() {
 
 export async function getIpData() {
   const timestamp = Number.parseInt(localStorage.getItem('aws-ip-timestamp') ?? 0);
+  const preData = localStorage.getItem('aws-ip-data');
   const latest = await checkLastestAws();
-  if (timestamp < latest) {
+  if (!preData || timestamp < latest) {
     await populateCache();
   }
   const data = JSON.parse(localStorage.getItem('aws-ip-data'));
