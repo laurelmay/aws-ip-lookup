@@ -108,7 +108,7 @@ async function handleLookup() {
     matches.push(...(v4s?.flatMap((address) => getMatchesv4(address)) ?? []));
     matches.push(...(v6s?.flatMap((address) => getMatchesv6(address)) ?? []));
   }
-  return matches;
+  return { lookup: text, matches };
 }
 
 function handleSubmit() {
@@ -117,7 +117,6 @@ function handleSubmit() {
   const notFound = document.getElementById("not-found");
   const loading = document.getElementById("loading");
   const heading = document.getElementById("table-heading");
-  const input = document.getElementById("lookup").value;
   loading.style.display = "block";
   table.style.display = "none";
   table.style.visibility = "visible";
@@ -125,11 +124,11 @@ function handleSubmit() {
   notFound.style.display = "none";
   notFound.replaceChildren([]);
   handleLookup()
-    .then((matches) => {
+    .then(({ lookup, matches }) => {
       if (matches?.length) {
         const rows = matches.map((match) => createRow(match));
         const tableBody = document.getElementById("table-body");
-        heading.innerText = input;
+        heading.innerText = lookup;
         tableBody.replaceChildren(...rows);
         loading.style.display = "none";
         table.style.display = "table";
