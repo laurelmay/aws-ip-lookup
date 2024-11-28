@@ -157,7 +157,6 @@ input[type=submit] {
   code {
     font-style: normal;
     font-weight: bold;
-    font-size: 1.25em;
   }
   &::before {
     font-family: "Font Awesome";
