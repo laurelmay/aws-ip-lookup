@@ -1,4 +1,4 @@
-import { isInSubnet } from "https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm";
+import { isInSubnet } from 'https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm';
 import { getIpData } from './data-store.js';
 import { copyText } from './copy-text.js';
 
@@ -103,7 +103,7 @@ function getMatchesv6(ipAddress) {
 }
 
 async function handleLookup() {
-  const input = document.getElementById("lookup");
+  const input = document.getElementById('lookup');
   if (!input.value && input.placeholder) {
     input.value = input.placeholder;
   }
@@ -111,7 +111,7 @@ async function handleLookup() {
   if (!text) {
     throw new Error('A value to lookup must be provided');
   }
-  if (text && new URL(window.location).searchParams?.get("lookup") !== text) {
+  if (text && new URL(window.location).searchParams?.get('lookup') !== text) {
     const newUrl = new URL(window.location);
     newUrl.search = new URLSearchParams({ lookup: text }).toString()
     window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
@@ -132,26 +132,26 @@ async function handleLookup() {
 }
 
 function handleSubmit() {
-  const table = document.getElementById("table");
-  const errorContainer = document.getElementById("error-container");
-  const notFound = document.getElementById("not-found");
-  const loading = document.getElementById("loading");
-  const heading = document.getElementById("table-heading");
-  loading.style.display = "block";
-  table.style.display = "none";
-  table.style.visibility = "visible";
-  errorContainer.style.display = "none";
-  notFound.style.display = "none";
+  const table = document.getElementById('table');
+  const errorContainer = document.getElementById('error-container');
+  const notFound = document.getElementById('not-found');
+  const loading = document.getElementById('loading');
+  const heading = document.getElementById('table-heading');
+  loading.style.display = 'block';
+  table.style.display = 'none';
+  table.style.visibility = 'visible';
+  errorContainer.style.display = 'none';
+  notFound.style.display = 'none';
   notFound.replaceChildren([]);
   handleLookup()
     .then(({ lookup, matches }) => {
       if (matches?.length) {
         const rows = matches.map((match) => createRow(match));
-        const tableBody = document.getElementById("table-body");
+        const tableBody = document.getElementById('table-body');
         heading.innerText = lookup;
         tableBody.replaceChildren(...rows);
-        loading.style.display = "none";
-        table.style.display = "table";
+        loading.style.display = 'none';
+        table.style.display = 'table';
       } else {
         notFound.appendChild(document.createTextNode('It looks like '));
         const codeNode = document.createElement('code');
@@ -197,15 +197,15 @@ function handleSubmit() {
 }
 
 const ipData = await getIpData();
-document.getElementById("form").onsubmit = () => handleSubmit();
+document.getElementById('form').onsubmit = () => handleSubmit();
 
 function loadFromUrl() {
-  const urlInput = new URL(window.location).searchParams?.get("lookup");
+  const urlInput = new URL(window.location).searchParams?.get('lookup');
   if (urlInput) {
-    document.getElementById("lookup").value = urlInput;
+    document.getElementById('lookup').value = urlInput;
     handleSubmit();
   } else {
-    document.getElementById("lookup").focus();
+    document.getElementById('lookup').focus();
   }
 }
 loadFromUrl();

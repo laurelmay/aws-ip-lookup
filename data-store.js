@@ -1,4 +1,4 @@
-const ipDataUrl = new URL("https://ip-ranges.amazonaws.com/ip-ranges.json");
+const ipDataUrl = new URL('https://ip-ranges.amazonaws.com/ip-ranges.json');
 
 async function retrieveFromAws() {
   const ipDataResponse = await fetch(ipDataUrl);
