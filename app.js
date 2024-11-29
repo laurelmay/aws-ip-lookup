@@ -2,6 +2,28 @@ import { isInSubnet } from "https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm
 import { getIpData } from './data-store.js';
 import { copyText } from './copy-text.js';
 
+/**
+ * A lazy check that should at least distinguish a valid IPv4 address
+ * from a generic hostname.
+ */
+function looksLikeIpV4Address(test) {
+  const ipv4ishRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+  return ipv4ishRegex.test(test);
+}
+
+/**
+ * A lazy check that should at least distinguish a valid IPv6 address
+ * from a generic hostname.
+ */
+function looksLikeIpv6Address(test) {
+  const ipv6ishRegex = /^[a-f\d:]+$/i;
+  return ipv6ishRegex.test(test);
+}
+
+function looksLikeAnIpAddress(test) {
+  return looksLikeIpV4Address(test) || looksLikeIpv6Address(test);
+}
+
 function createCopyButton(text) {
   const icon = document.createElement('i');
   icon.classList.add('fa-regular', 'fa-copy');
@@ -94,12 +116,10 @@ async function handleLookup() {
     newUrl.search = new URLSearchParams({ lookup: text }).toString()
     window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
   }
-  const ipv4ishRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-  const ipv6ishRegex = /^[a-f\d:]+$/i;
   const matches = [];
-  if (ipv4ishRegex.test(text)) {
+  if (looksLikeIpV4Address(text)) {
     matches.push(...getMatchesv4(text));
-  } else if (ipv6ishRegex.test(text)) {
+  } else if (looksLikeIpv6Address(text)) {
     matches.push(...getMatchesv6(text));
   } else {
     const v4Promise = lookupDnsForHostname(text, 'A');
@@ -134,12 +154,13 @@ function handleSubmit() {
         table.style.display = "table";
       } else {
         notFound.appendChild(document.createTextNode('It looks like '));
-        const codeNode = document.createElement("code");
-        codeNode.innerText = input;
+        const codeNode = document.createElement('code');
+        codeNode.innerText = lookup;
         notFound.appendChild(codeNode);
-        notFound.appendChild(document.createTextNode(' may not be within AWS-owned IP space.'));
-        loading.style.display = "none";
-        notFound.style.display = "block";
+        const isHostedText = !looksLikeAnIpAddress(lookup) ? ' hosted ' : ' ';
+        notFound.appendChild(document.createTextNode(` may not be${isHostedText}within AWS-owned IP space.`));
+        loading.style.display = 'none';
+        notFound.style.display = 'block';
       }
     })
     .catch((error) => {
@@ -149,7 +170,6 @@ function handleSubmit() {
       errorHead.innerText = 'Unable to load data';
       errorMessage.className = 'error-message';
       errorMessage.innerText = error.toString();
-
 
       errorContainer.replaceChildren(
         errorHead,
