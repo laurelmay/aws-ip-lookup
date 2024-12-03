@@ -2,6 +2,11 @@ import { isInSubnet } from 'https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm
 import { getIpData } from './data-store.js';
 import { copyText } from './copy-text.js';
 
+const DnsType = Object.freeze({
+  A: 1,
+  AAAA: 28
+});
+
 /**
  * A lazy check that should at least distinguish a valid IPv4 address
  * from a generic hostname.
@@ -68,7 +73,6 @@ function createRow(match) {
 }
 
 async function lookupDnsForHostname(name, type) {
-  const typeNumber = type === 'A' ? 1 : 28;
   const response = await fetch('https://cloudflare-dns.com/dns-query?' + new URLSearchParams({ type, name }), {
     method: 'GET',
     headers: {
@@ -77,7 +81,7 @@ async function lookupDnsForHostname(name, type) {
     signal: AbortSignal.timeout(3000),
   });
   const json = await response.json();
-  return json.Answer?.filter((answer) => answer.type === typeNumber).map(({ data }) => data);
+  return json.Answer?.filter((answer) => answer.type === type).map(({ data }) => data);
 }
 
 function getMatchesHelper(key, objField, ipAddress) {
@@ -122,8 +126,8 @@ async function handleLookup() {
   } else if (looksLikeIpv6Address(text)) {
     matches.push(...getMatchesv6(text));
   } else {
-    const v4Promise = lookupDnsForHostname(text, 'A');
-    const v6Promise = lookupDnsForHostname(text, 'AAAA');
+    const v4Promise = lookupDnsForHostname(text, DnsType.A);
+    const v6Promise = lookupDnsForHostname(text, DnsType.AAAA);
     const [v4s, v6s] = await Promise.all([v4Promise, v6Promise]);
     matches.push(...(v4s?.flatMap((address) => getMatchesv4(address)) ?? []));
     matches.push(...(v6s?.flatMap((address) => getMatchesv6(address)) ?? []));
