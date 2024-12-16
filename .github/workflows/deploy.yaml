@@ -15,6 +15,9 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    environment:
+      name: prod
+      url: ${{ vars.DEPLOYMENT_URL }}
     steps:
       - name: Clone the repository
         uses: actions/checkout@v4
