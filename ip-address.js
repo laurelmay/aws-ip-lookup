@@ -93,13 +93,6 @@ class TrieNode {
       this.data.add(data);
     }
   }
-
-  isMergeable() {
-    return this.child0.isTerminal !== null
-      && this.child0.data !== null
-      && this.child0.isTerminal === this.child1.isTerminal
-      && this.child0.data === this.child1.data;
-  }
 }
 
 export class CidrTrie {
@@ -115,7 +108,7 @@ export class CidrTrie {
   add(prefixData, ipAddressKey) {
     const { [ipAddressKey]: prefix } = prefixData;
     const cidr = parseCidr(this.version, prefix);
-    this.#setData(cidr, new Set([prefixData]));
+    this.#setData(cidr, prefixData);
   }
 
   lookup(ipAddress) {
@@ -134,48 +127,41 @@ export class CidrTrie {
   #setData(cidr, data, node = this.root, depth = 0) {
     if (depth === cidr.mask) {
       node.isTerminal = true;
-      node.addData([...data]);
+      node.addData(data);
       return;
     }
 
-    if (node.isTerminal) {
-      node.isTerminal = false;
-    }
-
     if (node.isTerminal !== null) {
-      node.child0 = new TrieNode({ isTerminal: node.isTerminal });
-      node.child1 = new TrieNode({ isTerminal: node.isTerminal });
+      node.child0 ??= new TrieNode({ isTerminal: node.isTerminal });
+      node.child1 ??= new TrieNode({ isTerminal: node.isTerminal });
       node.isTerminal = null;
     }
 
-    node.child0?.addData([...node.data]);
-    node.child1?.addData([...node.data]);
-
     const child = this.#nextBit(cidr.address, depth) === 0n ? node.child0 : node.child1;
-    this.#setData(cidr, [...data], child, depth + 1);
-
-    if (node.isMergeable()) {
-      node.isTerminal = node.child0.isTerminal;
-      node.addData([...node.child0.data]);
-      node.child0 = null;
-      node.child1 = null;
-    }
+    this.#setData(cidr, data, child, depth + 1);
   }
 
-  #query(cidr, node = this.root, depth = 0) {
+  #query(cidr, node = this.root, depth = 0, data = null) {
+    if (data === null) {
+      data = new Set();
+    }
+
     if (node === null) {
       return { isPresent: false, data: null };
     }
 
+    [...node.data].forEach((d) => data.add(d));
+
     if (depth === cidr.mask) {
-      return { isPresent: node.isTerminal === true, data: [...node.data] };
+      return { isPresent: node.isTerminal === true, data: [...data] };
     }
 
     if (node.isTerminal !== null) {
-      return { isPresent: node.isTerminal, data: [...node.data] };
+      [...node.data].forEach((d) => data.add(d));
+      return { isPresent: node.isTerminal, data: [...data] };
     }
 
     const child = this.#nextBit(cidr.address, depth) === 0n ? node.child0 : node.child1;
-    return this.#query(cidr, child, depth + 1);
+    return this.#query(cidr, child, depth + 1, data);
   }
 }
