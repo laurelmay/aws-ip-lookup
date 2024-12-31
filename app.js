@@ -1,32 +1,14 @@
-import { isInSubnet } from 'https://cdn.jsdelivr.net/npm/is-in-subnet@4.0.1/+esm';
 import { getIpData } from './data-store.js';
 import { copyText } from './copy-text.js';
+import { CidrTrie, IpVersion, isIpv4Address, isIpv6Address } from './ip-address.js';
 
 const DnsType = Object.freeze({
   A: 1,
   AAAA: 28
 });
 
-/**
- * A lazy check that should at least distinguish a valid IPv4 address
- * from a generic hostname.
- */
-function looksLikeIpV4Address(test) {
-  const ipv4ishRegex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
-  return ipv4ishRegex.test(test);
-}
-
-/**
- * A lazy check that should at least distinguish a valid IPv6 address
- * from a generic hostname.
- */
-function looksLikeIpv6Address(test) {
-  const ipv6ishRegex = /^[a-f\d:]+$/i;
-  return ipv6ishRegex.test(test);
-}
-
 function looksLikeAnIpAddress(test) {
-  return looksLikeIpV4Address(test) || looksLikeIpv6Address(test);
+  return isIpv4Address(test) || isIpv6Address(test);
 }
 
 function createCopyButton(text) {
@@ -84,26 +66,18 @@ async function lookupDnsForHostname(name, type) {
   return json.Answer?.filter((answer) => answer.type === type).map(({ data }) => data);
 }
 
-function getMatchesHelper(key, objField, ipAddress) {
-  const matches = ipData[key]
-    .filter(({ [objField]: prefix }) => isInSubnet(ipAddress, prefix))
-    .map((match) => ({ ...match, ipAddress }));
-  if (!matches.length) {
+function getMatches(version, ipAddress) {
+  let matches = (version === IpVersion.IPV4) ? v4Trie.lookup(ipAddress) : v6Trie.lookup(ipAddress);
+
+  if (!matches?.length) {
     return [];
   }
-  if (matches.length == 1) {
+
+  if (matches.length === 1) {
     return matches;
   }
-  // Remove duplicate entries listed as just being 'AMAZON'
+
   return matches.filter(({ service }) => service !== 'AMAZON');
-}
-
-function getMatchesv4(ipAddress) {
-  return getMatchesHelper('prefixes', 'ip_prefix', ipAddress);
-}
-
-function getMatchesv6(ipAddress) {
-  return getMatchesHelper('ipv6_prefixes', 'ipv6_prefix', ipAddress);
 }
 
 async function handleLookup() {
@@ -121,16 +95,16 @@ async function handleLookup() {
     window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
   }
   const matches = [];
-  if (looksLikeIpV4Address(text)) {
-    matches.push(...getMatchesv4(text));
-  } else if (looksLikeIpv6Address(text)) {
-    matches.push(...getMatchesv6(text));
+  if (isIpv4Address(text)) {
+    matches.push(...getMatches(IpVersion.IPV4, text));
+  } else if (isIpv6Address(text)) {
+    matches.push(...getMatches(IpVersion.IPV6, text));
   } else {
     const v4Promise = lookupDnsForHostname(text, DnsType.A);
     const v6Promise = lookupDnsForHostname(text, DnsType.AAAA);
     const [v4s, v6s] = await Promise.all([v4Promise, v6Promise]);
-    matches.push(...(v4s?.flatMap((address) => getMatchesv4(address)) ?? []));
-    matches.push(...(v6s?.flatMap((address) => getMatchesv6(address)) ?? []));
+    matches.push(...(v4s?.flatMap((address) => getMatches(IpVersion.IPV4, address)) ?? []));
+    matches.push(...(v6s?.flatMap((address) => getMatches(IpVersion.IPV6, address)) ?? []));
   }
   return { lookup: text, matches };
 }
@@ -201,6 +175,16 @@ function handleSubmit() {
 }
 
 const ipData = await getIpData();
+const v4Trie = new CidrTrie(IpVersion.IPV4);
+const v6Trie = new CidrTrie(IpVersion.IPV6);
+
+for (const prefix of ipData['prefixes']) {
+  v4Trie.add(prefix, 'ip_prefix');
+}
+for (const prefix of ipData['ipv6_prefixes']) {
+  v6Trie.add(prefix, 'ipv6_prefix');
+}
+
 document.getElementById('form').onsubmit = () => handleSubmit();
 
 function loadFromUrl() {
