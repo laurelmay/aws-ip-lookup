@@ -98,7 +98,7 @@ class TrieNode {
 export class CidrTrie {
   constructor(version) {
     if (version !== IpVersion.IPV4 && version !== IpVersion.IPV6) {
-      throw new Error('The version must be either IPV4 or IPV6');
+      throw new Error('The version must be either IPv4 or IPv6');
     }
 
     this.version = version;
