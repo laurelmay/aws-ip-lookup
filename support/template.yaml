@@ -60,6 +60,38 @@ Resources:
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
+  ResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: awsips-response-headers
+        SecurityHeadersConfig:
+          ContentSecurityPolicy:
+            ContentSecurityPolicy: >-
+              default-src 'none';
+              style-src 'report-sample' 'self' https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css;
+              script-src 'report-sample' 'self';
+              font-src https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/;
+              img-src 'self';
+              connect-src 'self' ip-ranges.amazonaws.com cloudflare-dns.com ka-p.fontawesome.com;
+            Override: true
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: DENY
+            Override: true
+          ReferrerPolicy:
+            Override: true
+            ReferrerPolicy: strict-origin
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 86400
+            IncludeSubdomains: false
+            Preload: false
+            Override: true
+          XSSProtection:
+            Override: true
+            Protection: true
+            ModeBlock: true
   Distribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -71,7 +103,7 @@ Resources:
           AllowedMethods: ["GET", "HEAD"]
           CachedMethods: ["GET", "HEAD"]
           CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
-          ResponseHeadersPolicyId: "67f7725c-6f97-4210-82d7-5512b31e9d03" # SecurityHeadersPolicy
+          ResponseHeadersPolicyId: !GetAtt "ResponseHeadersPolicy.Id"
         DefaultRootObject: index.html
         Origins:
           - DomainName: !GetAtt Bucket.RegionalDomainName

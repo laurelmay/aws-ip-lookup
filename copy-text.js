@@ -1,14 +1,14 @@
 function temporarilySwapIcon(node, options) {
   const { from, to } = options;
   const replaceAt = node.querySelector('[data-fa-i2svg]');
-  replaceAt.classList.remove(from);
-  replaceAt.classList.add(to, 'fa-solid');
+  node.classList.remove(from);
+  node.classList.add(to);
 
 
   setTimeout(() => {
     const replaceAt = node.querySelector('[data-fa-i2svg]');
-    replaceAt.classList.remove(to);
-    replaceAt.classList.add(from, 'fa-regular');
+    node.classList.remove(to);
+    node.classList.add(from);
   }, 750);
 }
 
@@ -23,11 +23,11 @@ export function copyText(text, button, icon) {
   navigator.clipboard.writeText(text)
     .then(() => {
       temporarilyApplyClass(button, 'copy-success');
-      temporarilySwapIcon(icon, { from: 'fa-copy', to: 'fa-check' });
+      temporarilySwapIcon(icon, { from: 'bi-copy', to: 'bi-check' });
     })
     .catch(() => {
       temporarilyApplyClass(button, 'copy-failure');
-      temporarilySwapIcon(icon, { from: 'fa-copy', to: 'fa-x' });
+      temporarilySwapIcon(icon, { from: 'bi-copy', to: 'bi-x' });
       const textNode = button.parentElement.querySelector('span');
       const selection = window.getSelection();
       const range = document.createRange();

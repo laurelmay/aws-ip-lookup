@@ -4,9 +4,19 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'none';
+        style-src 'report-sample' 'self' https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css;
+        script-src 'report-sample' 'self';
+        font-src https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/;
+        img-src 'self';
+        connect-src 'self' ip-ranges.amazonaws.com cloudflare-dns.com ka-p.fontawesome.com;
+        ">
     <title>AWS IP Address Information</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://kit.fontawesome.com/4ceccf1821.js" crossorigin="anonymous" data-auto-replace-svg="nest"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   </head>
 
   <body>
@@ -28,14 +38,14 @@
         <a href="about.html">More information</a>
       </p>
 
-      <form id="form" action="javascript:void(0);">
+      <form id="form">
         <label for="lookup">IP Address or Hostname</label>
         <br>
         <input type="text" id="lookup" name="lookup">
         <input type="submit" value="Lookup">
       </form>
 
-      <table id="table" style="visibility: hidden;">
+      <table id="table" class="hidden">
         <thead>
           <tr>
             <th colspan="5"><h2 id="table-heading"></h2></th>
@@ -52,12 +62,12 @@
         </tbody>
       </table>
 
-      <div id="loading" style="display: none;">
+      <div id="loading" class="d-none">
         <label for="loading-progress">Loading...</label>
         <progress id="loading-progress"></progress>
       </div>
-      <p id="not-found" style="display: none;"></p>
-      <p id="error-container" style="display: none;"></p>
+      <p id="not-found" class="d-none"></p>
+      <p id="error-container" class="d-none"></p>
     </main>
 
     <footer>
@@ -66,7 +76,7 @@
           <p><a href="license.html" id="copyright">Copyright &copy; 2024 Laurel May</a></p>
         </div>
         <div>
-          <p><a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank"><i class="fa-brands fa-github"></i></a></p>
+          <p><a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank"><i class="bi-github"></i></a></p>
         </div>
       </div>
     </footer>

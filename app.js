@@ -13,7 +13,7 @@ function looksLikeAnIpAddress(test) {
 
 function createCopyButton(text) {
   const icon = document.createElement('i');
-  icon.classList.add('fa-regular', 'fa-copy');
+  icon.classList.add('bi-copy');
 
   const button = document.createElement('button');
   button.classList.add('copy-button');
@@ -185,7 +185,10 @@ for (const prefix of ipData['ipv6_prefixes']) {
   v6Trie.add(prefix, 'ipv6_prefix');
 }
 
-document.getElementById('form').onsubmit = () => handleSubmit();
+document.getElementById('form').onsubmit = (event) => {
+  event.preventDefault();
+  handleSubmit();
+}
 
 function loadFromUrl() {
   const urlInput = new URL(window.location).searchParams?.get('lookup');
