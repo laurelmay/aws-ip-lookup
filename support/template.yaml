@@ -70,7 +70,8 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods: ["GET", "HEAD"]
           CachedMethods: ["GET", "HEAD"]
-          CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
+          CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+          ResponseHeadersPolicyId: "67f7725c-6f97-4210-82d7-5512b31e9d03" # SecurityHeadersPolicy
         DefaultRootObject: index.html
         Origins:
           - DomainName: !GetAtt Bucket.RegionalDomainName
