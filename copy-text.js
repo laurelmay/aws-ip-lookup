@@ -1,12 +1,9 @@
-function temporarilySwapIcon(node, options) {
-  const { from, to } = options;
-  const replaceAt = node.querySelector('[data-fa-i2svg]');
+function temporarilySwapClass(node, { from, to }) {
   node.classList.remove(from);
   node.classList.add(to);
 
 
   setTimeout(() => {
-    const replaceAt = node.querySelector('[data-fa-i2svg]');
     node.classList.remove(to);
     node.classList.add(from);
   }, 750);
@@ -23,11 +20,11 @@ export function copyText(text, button, icon) {
   navigator.clipboard.writeText(text)
     .then(() => {
       temporarilyApplyClass(button, 'copy-success');
-      temporarilySwapIcon(icon, { from: 'bi-copy', to: 'bi-clipboard-check-fill' });
+      temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-check-fill' });
     })
     .catch(() => {
       temporarilyApplyClass(button, 'copy-failure');
-      temporarilySwapIcon(icon, { from: 'bi-copy', to: 'bi-clipboard-x-fill' });
+      temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-x-fill' });
       const textNode = button.parentElement.querySelector('span');
       const selection = window.getSelection();
       const range = document.createRange();
@@ -36,5 +33,3 @@ export function copyText(text, button, icon) {
       selection.addRange(range);
     });
 }
-
-
