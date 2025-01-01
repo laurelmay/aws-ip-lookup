@@ -6,6 +6,11 @@ concurrency: deploy-to-s3
 on:
   push:
     branches: [main]
+    paths:
+      # Match the file types included in the copy command in the "Copy to S3" step
+      - '*.js'
+      - '*.css'
+      - '*.html'
   workflow_dispatch:
 
 jobs:
@@ -29,6 +34,7 @@ jobs:
           role-session-name: Deployment${{ github.run_id }}-${{ github.run_attempt }}
           role-duration-seconds: 900
       - name: Copy to S3
+        # Ensure the cp command matches the paths in the 'on.push.paths' config
         run: |
           STAGING_DIR="$(mktemp -d)"
           cp *.js *.html *.css "$STAGING_DIR/"
