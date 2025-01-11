@@ -14,10 +14,10 @@ const v6AddressRegex = new RegExp('^(' +
   `(?:${v6SegmentRegex}:){7,7}${v6SegmentRegex}|` +
   `(?:${v6SegmentRegex}:){1,7}:|` +
   `(?:${v6SegmentRegex}:){1,6}:${v6SegmentRegex}|` +
-  `(?:${v6SegmentRegex}:){1,5}:(?:${v6SegmentRegex}){1,2}|` +
-  `(?:${v6SegmentRegex}:){1,4}:(?:${v6SegmentRegex}){1,3}|` +
-  `(?:${v6SegmentRegex}:){1,3}:(?:${v6SegmentRegex}){1,5}|` +
-  `${v6SegmentRegex}:(?:(?::${v6SegmentRegex}){1,6})` +
+  `(?:${v6SegmentRegex}:){1,5}(?::${v6SegmentRegex}){1,2}|` +
+  `(?:${v6SegmentRegex}:){1,4}(?::${v6SegmentRegex}){1,3}|` +
+  `(?:${v6SegmentRegex}:){1,3}(?::${v6SegmentRegex}){1,5}|` +
+  `${v6SegmentRegex}:(?::${v6SegmentRegex}){1,6}` +
   ')$');
 
 export function isIpv4Address(address) {
