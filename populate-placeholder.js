@@ -20,6 +20,9 @@ const placeholders = [
   '15.188.210.64',
   '3.146.42.64',
   '3.101.202.127',
+  '2406:da14:1713:ba00::/56',
+  '2406:da2a::/36',
+  '2600:1ffb:8000::/39',
 ];
 
 document.getElementById('lookup').placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
