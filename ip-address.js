@@ -41,7 +41,7 @@ function ipV6AddressToNumber(address) {
   // Insert empty segments in place of `::` until there are
   // exactly 8 segments total.
   const emptySegment = segments.indexOf('');
-  if (emptySegment != -1) {
+  if (emptySegment !== -1) {
     while (segments.length < 8) {
       segments.splice(emptySegment, 0, "");
     }
