@@ -37,7 +37,7 @@ jobs:
         # Ensure the cp command matches the paths in the 'on.push.paths' config
         run: |
           STAGING_DIR="$(mktemp -d)"
-          cp *.js *.html *.css "$STAGING_DIR/"
+          cp *.js *.html *.css *.ico "$STAGING_DIR/"
           aws s3 sync "$STAGING_DIR/" s3://${{ secrets.AWS_S3_BUCKET_NAME }}
       - name: Invalidate cache
         run: |
