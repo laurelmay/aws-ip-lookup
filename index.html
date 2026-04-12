@@ -3,27 +3,34 @@
 
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>AWS IP Address Information</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous">
   </head>
 
   <body>
     <header>
       <div class="container">
-        <h1>Information about AWS IP addresses</h1>
         <nav>
-          <a href="index.html">Lookup</a>
-          <span></span>
-          <a href="about.html">About</a>
-          <a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank">GitHub</a>
+          <div class="heading">
+            <h1>AWS IP Info</h1>
+          </div>
+          <div class="nav-links">
+            <a href="index.html">Lookup</a>
+            <a href="about.html">About</a>
+            <a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank">GitHub</a>
+          </div>
         </nav>
       </div>
     </header>
     <main class="container">
-      <p>
+      <p class="instructions">
         Enter a domain name or IP address and this will provide the available information about
         which AWS services and regions the IP address is allocated for.
         <a href="about.html">More information</a>
@@ -31,16 +38,20 @@
 
       <form id="form">
         <label for="lookup">IP Address or Hostname</label>
-        <br>
-        <input type="text" id="lookup" name="lookup">
-        <input type="submit" value="Lookup">
+        <div class="inputs">
+          <input type="text" id="lookup" name="lookup" class="monospaced" autocomplete="off" autocorrect="off">
+          <input type="submit" id="submit" value="Lookup" disabled>
+        </div>
       </form>
 
-      <table id="table" class="hidden">
+      <div id="loading" class="d-none">
+        <span>Loading...</span>
+        <div id="loading-bar"></div>
+      </div>
+
+      <h2 id="table-heading" class="monospaced d-none"></h2>
+      <table id="table" class="d-none">
         <thead>
-          <tr>
-            <th colspan="5"><h2 id="table-heading"></h2></th>
-          </tr>
           <tr>
             <th scope="col">Address</th>
             <th scope="col">Prefix</th>
@@ -53,18 +64,14 @@
         </tbody>
       </table>
 
-      <div id="loading" class="d-none">
-        <label for="loading-progress">Loading...</label>
-        <progress id="loading-progress"></progress>
-      </div>
       <p id="not-found" class="d-none"></p>
-      <p id="error-container" class="d-none"></p>
+      <div id="error-container" class="d-none"></div>
     </main>
 
     <footer>
       <div class="container spread-items">
         <div>
-          <p><a href="license.html" id="copyright">Copyright &copy; 2024 Laurel May</a></p>
+          <p><a href="license.html" id="copyright">Copyright &copy; 2026 Laurel May</a></p>
         </div>
         <div>
           <p><a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank"><i class="bi-github"></i></a></p>

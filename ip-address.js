@@ -22,6 +22,15 @@ const v6AddressRegex = ('(' +
   ')');
 const v6CidrRegex = new RegExp(`^(?:${v6AddressRegex})(?:\\/(?:[0-9]|[1-9][0-9]|1[0-1][1-9]|12[0-8]))?$`);
 
+export function ipAddressToNumber(address) {
+  if (isIpv4Address(address)) {
+    return ipV4AddressToNumber(address);
+  }
+  if (isIpv6Address(address)) {
+    return ipV6AddressToNumber(address)
+  }
+}
+
 export function isIpv4Address(address) {
   return v4CidrRegex.test(address);
 }
@@ -150,7 +159,6 @@ export class CidrTrie {
     }
 
     if (node.isTerminal !== null) {
-      [...node.data].forEach((d) => data.add(d));
       return { isPresent: node.isTerminal, data: [...data] };
     }
 

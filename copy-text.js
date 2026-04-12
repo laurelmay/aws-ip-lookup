@@ -17,19 +17,35 @@ function temporarilyApplyClass(node, className) {
 }
 
 export function copyText(text, button, icon) {
-  navigator.clipboard.writeText(text)
-    .then(() => {
-      temporarilyApplyClass(button, 'copy-success');
-      temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-check-fill' });
-    })
-    .catch(() => {
-      temporarilyApplyClass(button, 'copy-failure');
-      temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-x-fill' });
-      const textNode = button.parentElement.querySelector('span');
-      const selection = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(textNode);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    });
+  const onSuccess = () => {
+    temporarilyApplyClass(button, 'copy-success');
+    temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-check-fill' });
+  };
+  const onFailure = () => {
+    temporarilyApplyClass(button, 'copy-failure');
+    temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-x-fill' });
+  };
+
+  const legacyCopyFallback = () => {
+    const textNode = button.parentElement.querySelector('span');
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(textNode);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    try {
+      document.execCommand('copy');
+      onSuccess();
+    } catch {
+      onFailure();
+    }
+    selection.removeAllRanges();
+  };
+
+  if (!navigator.clipboard) {
+    legacyCopyFallback();
+    return;
+  }
+
+  navigator.clipboard.writeText(text).then(onSuccess).catch(legacyCopyFallback);
 }

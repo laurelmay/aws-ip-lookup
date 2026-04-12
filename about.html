@@ -7,18 +7,25 @@
     <title>AWS IP Address Information</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous">
   </head>
 
   <body>
     <header>
       <div class="container">
-        <h1>About</h1>
         <nav>
-          <a href="index.html">Lookup</a>
-          <span></span>
-          <a href="about.html">About</a>
-          <a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank">GitHub</a>
+          <div class="heading">
+            <h1>About</h1>
+          </div>
+          <div class="nav-links">
+            <a href="index.html">Lookup</a>
+            <a href="about.html">About</a>
+            <a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank">GitHub</a>
+          </div>
         </nav>
       </div>
     </header>
@@ -33,8 +40,8 @@
       <p>
         When a hostname is entered, rather than directly looking the value up in the JSON file, the
         <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/" target="_blank">Cloudflare DNS over HTTPS API</a>
-        is used to get the IPv4 and IPv6 addresses for the given domain. Only <code>A</code> and
-        <code>AAAA</code> records will be checked.
+        is used to get the IPv4 and IPv6 addresses for the given domain. Only <span class="monospaced">A</span> and
+        <span class="monospaced">AAAA</span> records will be checked.
       </p>
       <p>
         This also won't work if an organization is using
@@ -59,7 +66,7 @@
     <footer>
       <div class="container spread-items">
         <div>
-          <p><a href="license.html" id="copyright">Copyright &copy; 2024 Laurel May</a></p>
+          <p><a href="license.html" id="copyright">Copyright &copy; 2026 Laurel May</a></p>
         </div>
         <div>
           <p><a href="https://github.com/laurelmay/aws-ip-lookup" target="_blank"><i class="bi-github"></i></a></p>

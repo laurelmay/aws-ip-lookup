@@ -96,6 +96,7 @@ Resources:
               font-src https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/;
               img-src 'self';
               connect-src 'self' ip-ranges.amazonaws.com cloudflare-dns.com;
+              base-uri 'none';
               report-uri https://h7pjg7uyt5.execute-api.us-east-1.amazonaws.com/report;
               report-to default
             Override: true

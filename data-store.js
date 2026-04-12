@@ -1,7 +1,7 @@
-const ipDataUrl = new URL('https://ip-ranges.amazonaws.com/ip-ranges.json');
+const IP_DATA_URL = new URL('https://ip-ranges.amazonaws.com/ip-ranges.json');
 
 async function retrieveFromAws() {
-  const ipDataResponse = await fetch(ipDataUrl);
+  const ipDataResponse = await fetch(IP_DATA_URL, { signal: AbortSignal.timeout(10_000) });
   const ipData = await ipDataResponse.json();
   const timestamp = Date.parse(ipDataResponse.headers.get('Last-Modified'));
   return {
@@ -10,9 +10,9 @@ async function retrieveFromAws() {
   }
 }
 
-async function checkLastestAws() {
+async function checkLatestAws() {
   try {
-    const response = await fetch(ipDataUrl, { method: 'HEAD' });
+    const response = await fetch(IP_DATA_URL, { method: 'HEAD', signal: AbortSignal.timeout(3_000) });
     const timestamp = Date.parse(response.headers.get('Last-Modified'));
     return timestamp;
   } catch (e) {
@@ -31,7 +31,9 @@ async function populateCache() {
 export async function getIpData() {
   const timestamp = Number.parseInt(localStorage.getItem('aws-ip-timestamp') ?? 0);
   const preData = localStorage.getItem('aws-ip-data');
-  const latest = await checkLastestAws();
+  const latest = await checkLatestAws();
+  // If the data hasn't been stored or if it's unclear whether the AWS data is newer,
+  // fallback to trying to fetch the latest AWS data.
   if (!preData || timestamp < latest) {
     await populateCache();
   }
