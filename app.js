@@ -176,6 +176,7 @@ function handleSubmit() {
   const heading = document.getElementById('table-heading');
   table.style.display = 'none';
   table.style.visibility = 'visible';
+  heading.style.display = 'none';
   errorContainer.style.display = 'none';
   notFound.style.display = 'none';
   notFound.replaceChildren();
@@ -191,6 +192,7 @@ function handleSubmit() {
         tableBody.replaceChildren(...rows);
         table.style.display = 'table';
       } else {
+        heading.style.display = 'none';
         notFound.appendChild(document.createTextNode('It looks like '));
         const codeNode = document.createElement('code');
         codeNode.innerText = lookup;
