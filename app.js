@@ -130,7 +130,6 @@ async function handleLookup(signal) {
     const bNumber = ipAddressToNumber(b.ipAddress);
     return aNumber < bNumber ? -1 : aNumber > bNumber ? 1 : 0;
   });
-  console.log(sortedMatches);
   return { lookup: text, matches: sortedMatches };
 }
 
