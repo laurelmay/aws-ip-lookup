@@ -332,7 +332,7 @@ input[type=submit] {
   }
 }
 
-a:visited {
+a, a:visited{
   color: var(--accent);
 }
 
