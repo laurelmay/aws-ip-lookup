@@ -80,11 +80,10 @@ function parseCidr(version, cidr) {
 }
 
 class TrieNode {
-  constructor({ isTerminal = false, child0 = null, child1 = null} = {}) {
-    this.isTerminal = isTerminal;
-    this.child0 = child0;
-    this.child1 = child1;
-
+  constructor() {
+    this.isTerminal = false;
+    this.child0 = null;
+    this.child1 = null;
     this.data = new Set();
   }
 
@@ -114,11 +113,8 @@ export class CidrTrie {
   }
 
   lookup(ipAddress) {
-    const result = this.#query(parseCidr(this.version, ipAddress));
-    if (!result.isPresent) {
-      return [];
-    }
-    return result.data.map((data) => ({...data, ipAddress}));
+    const data = this.#query(parseCidr(this.version, ipAddress));
+    return data.map((d) => ({...d, ipAddress}));
   }
 
   #nextBit(address, depth) {
@@ -133,36 +129,22 @@ export class CidrTrie {
       return;
     }
 
-    if (node.isTerminal !== null) {
-      node.child0 ??= new TrieNode({ isTerminal: node.isTerminal });
-      node.child1 ??= new TrieNode({ isTerminal: node.isTerminal });
-      node.isTerminal = null;
+    if (this.#nextBit(cidr.address, depth) === 0n) {
+      node.child0 ??= new TrieNode();
+      this.#setData(cidr, data, node.child0, depth + 1);
+    } else {
+      node.child1 ??= new TrieNode();
+      this.#setData(cidr, data, node.child1, depth + 1);
     }
-
-    const child = this.#nextBit(cidr.address, depth) === 0n ? node.child0 : node.child1;
-    this.#setData(cidr, data, child, depth + 1);
   }
 
-  #query(cidr, node = this.root, depth = 0, data = null) {
-    if (data === null) {
-      data = new Set();
+  #query(cidr, node = this.root, depth = 0, data = []) {
+    if (node === null || depth === cidr.mask) {
+      return node?.isTerminal ? [...data, ...node.data] : data;
     }
 
-    if (node === null) {
-      return { isPresent: false, data: null };
-    }
-
-    [...node.data].forEach((d) => data.add(d));
-
-    if (depth === cidr.mask) {
-      return { isPresent: node.isTerminal === true, data: [...data] };
-    }
-
-    if (node.isTerminal !== null) {
-      return { isPresent: node.isTerminal, data: [...data] };
-    }
-
+    const accumulated = node.isTerminal ? [...data, ...node.data] : data;
     const child = this.#nextBit(cidr.address, depth) === 0n ? node.child0 : node.child1;
-    return this.#query(cidr, child, depth + 1, data);
+    return this.#query(cidr, child, depth + 1, accumulated);
   }
 }
