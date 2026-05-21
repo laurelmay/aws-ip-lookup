@@ -36,8 +36,8 @@ export function isIpv4Address(address) {
 }
 
 function ipV4AddressToNumber(address) {
-  const octets = address.split('.').map((octet) => parseInt(octet, 10));
-  return BigInt((octets[0] << 24) + (octets[1] << 16) + (octets[2] << 8) + octets[3]);
+  const octets = address.split('.').map((octet) => BigInt(parseInt(octet, 10)));
+  return (octets[0] << 24n) | (octets[1] << 16n) | (octets[2] << 8n) | octets[3];
 }
 
 export function isIpv6Address(address) {
