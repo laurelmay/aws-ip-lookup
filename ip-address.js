@@ -20,7 +20,7 @@ const v6AddressRegex = ('(' +
   `(?:${v6SegmentRegex}:){1,3}(?::${v6SegmentRegex}){1,5}|` +
   `${v6SegmentRegex}:(?::${v6SegmentRegex}){1,6}` +
   ')');
-const v6CidrRegex = new RegExp(`^(?:${v6AddressRegex})(?:\\/(?:[0-9]|[1-9][0-9]|1[0-1][1-9]|12[0-8]))?$`);
+const v6CidrRegex = new RegExp(`^(?:${v6AddressRegex})(?:\\/(?:[0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$`);
 
 export function ipAddressToNumber(address) {
   if (isIpv4Address(address)) {
