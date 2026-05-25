@@ -1,6 +1,6 @@
 import { getIpData } from './data-store.js';
 import { copyText } from './copy-text.js';
-import { CidrTrie, ipAddressToNumber, IpVersion, isIpv4Address, isIpv6Address } from './ip-address.js';
+import { CidrTrie, ipAddressVersion, IpVersion, parseCidr } from './ip-address.js';
 
 let currentLookupController = undefined;
 
@@ -10,7 +10,7 @@ const DnsType = Object.freeze({
 });
 
 function looksLikeAnIpAddress(test) {
-  return isIpv4Address(test) || isIpv6Address(test);
+  return !!ipAddressVersion(test);
 }
 
 function createCopyButton(text) {
@@ -44,6 +44,10 @@ function createCell(text, copyable) {
   return cell;
 }
 
+function getPrefix(match) {
+  return match.ip_prefix ?? match.ipv6_prefix;
+}
+
 function createRow(match) {
   const row = document.createElement("tr");
   const address = createCell(match.ipAddress, true);
@@ -51,7 +55,7 @@ function createRow(match) {
   address.dataset.label = 'Address';
   row.appendChild(address);
 
-  const ipPrefix = createCell(match.ip_prefix ?? match.ipv6_prefix, true);
+  const ipPrefix = createCell(getPrefix(match), true);
   ipPrefix.dataset.label = 'Prefix';
   row.appendChild(ipPrefix);
 
@@ -114,9 +118,10 @@ async function handleLookup(signal) {
     window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
   }
   const matches = [];
-  if (isIpv4Address(text)) {
+  const addressVersion = ipAddressVersion(text);
+  if (addressVersion === IpVersion.IPV4) {
     matches.push(...getMatches(IpVersion.IPV4, text));
-  } else if (isIpv6Address(text)) {
+  } else if (addressVersion === IpVersion.IPV6) {
     matches.push(...getMatches(IpVersion.IPV6, text));
   } else {
     const v4Promise = lookupDnsForHostname(text, DnsType.A, signal);
@@ -126,9 +131,16 @@ async function handleLookup(signal) {
     matches.push(...(v6s?.flatMap((address) => getMatches(IpVersion.IPV6, address)) ?? []));
   }
   const sortedMatches = matches.toSorted((a, b) => {
-    const aNumber = ipAddressToNumber(a.ipAddress);
-    const bNumber = ipAddressToNumber(b.ipAddress);
-    return aNumber < bNumber ? -1 : aNumber > bNumber ? 1 : 0;
+    const aCidr = parseCidr(ipAddressVersion(a.ipAddress), a.ipAddress);
+    const bCidr = parseCidr(ipAddressVersion(b.ipAddress), b.ipAddress);
+    if (aCidr.address !== bCidr.address) {
+      return aCidr.address < bCidr.address ? -1 : aCidr.address > bCidr.address ? 1 : 0;
+    }
+    const aPrefix = getPrefix(a);
+    const bPrefix = getPrefix(b);
+    const aPrefixCidr = parseCidr(ipAddressVersion(aPrefix), aPrefix);
+    const bPrefixCidr = parseCidr(ipAddressVersion(bPrefix), bPrefix);
+    return aPrefixCidr.mask < bPrefixCidr.mask ? -1 : aPrefixCidr.mask > bPrefixCidr.mask ? 1 : 0;
   });
   return { lookup: text, matches: sortedMatches };
 }

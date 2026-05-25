@@ -22,16 +22,7 @@ const v6AddressRegex = ('(' +
   ')');
 const v6CidrRegex = new RegExp(`^(?:${v6AddressRegex})(?:\\/(?:[0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$`);
 
-export function ipAddressToNumber(address) {
-  if (isIpv4Address(address)) {
-    return ipV4AddressToNumber(address);
-  }
-  if (isIpv6Address(address)) {
-    return ipV6AddressToNumber(address)
-  }
-}
-
-export function isIpv4Address(address) {
+function isIpv4Address(address) {
   return v4CidrRegex.test(address);
 }
 
@@ -40,8 +31,18 @@ function ipV4AddressToNumber(address) {
   return (octets[0] << 24n) | (octets[1] << 16n) | (octets[2] << 8n) | octets[3];
 }
 
-export function isIpv6Address(address) {
+function isIpv6Address(address) {
   return v6CidrRegex.test(address);
+}
+
+export function ipAddressVersion(address) {
+  if (isIpv4Address(address)) {
+    return IpVersion.IPV4
+  }
+  if (isIpv6Address(address)) {
+    return IpVersion.IPV6
+  }
+  return undefined;
 }
 
 function ipV6AddressToNumber(address) {
@@ -59,11 +60,10 @@ function ipV6AddressToNumber(address) {
   // 0-pad all segments to 4 "digits" to ensure that they are
   // properly padded for the hex representation
   const paddedParts = segments.map((segment) => segment.padStart(4, '0'));
-
   return BigInt(`0x${paddedParts.join('')}`);
 }
 
-function parseCidr(version, cidr) {
+export function parseCidr(version, cidr) {
   const [address, mask] = cidr.split('/');
   if (version === IpVersion.IPV4) {
     if (!isIpv4Address(address)) {
