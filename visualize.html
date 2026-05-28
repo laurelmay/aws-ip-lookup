@@ -3,8 +3,8 @@
 
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>AWS IP Address Information</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IP Space Map — AWS IP Address Information</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="assets/css/style.css">
     <link
@@ -30,44 +30,47 @@
         </nav>
       </div>
     </header>
+
     <main class="container">
       <p class="instructions">
-        Enter a domain name or IP address and this will provide the available information about
-        which AWS services and regions the IP address is allocated for.
-        <a href="about.html">More information</a>
+        This represents the IPv4 and IPv6 address space to visualize the IP addresses used
+        by AWS services (not necessarily all those owned by AWS) across both protocols. Choose
+        the IP version to inspect and then click on blocks to drill down into further information.
       </p>
-
-      <form id="form">
-        <label for="lookup">IP Address or Hostname</label>
-        <div class="inputs">
-          <input type="text" id="lookup" name="lookup" class="monospaced" autocomplete="off" autocorrect="off">
-          <input type="submit" id="submit" value="Lookup" disabled>
-        </div>
-      </form>
-
-      <div id="loading" class="d-none">
+      <div id="loading">
         <span>Loading...</span>
         <div id="loading-bar"></div>
       </div>
 
-      <h2 id="table-heading" class="monospaced d-none"></h2>
-      <table id="table" class="d-none">
-        <thead>
-          <tr>
-            <th scope="col">Address</th>
-            <th scope="col">Prefix</th>
-            <th scope="col">Region(s)</th>
-            <th scope="col">Service(s)</th>
-            <th scope="col">Network<br>Border Group(s)</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-        </tbody>
-      </table>
+      <div id="error-container" class="d-none">
+        <span class="error-head">Unable to load data</span>
+        <br>
+        <span class="error-message"></span>
+      </div>
 
-      <p id="not-found" class="d-none"></p>
-      <div id="error-container" class="d-none"></div>
+      <div id="map-container" class="d-none">
+        <div class="map-tabs">
+          <button class="tab-btn tab-active" data-tab="v4">IPv4</button>
+          <button class="tab-btn" data-tab="v6">IPv6</button>
+        </div>
+
+        <div id="breadcrumb" class="breadcrumb"></div>
+
+        <div class="drill-frame">
+          <canvas id="drill-map" class="drill-map"></canvas>
+        </div>
+
+        <div id="legend" class="legend"></div>
+
+      </div>
     </main>
+
+    <div id="map-tooltip" class="map-tooltip d-none">
+      <div class="tooltip-prefix monospaced"></div>
+      <div class="tooltip-services"></div>
+      <div class="tooltip-region"></div>
+      <div class="tooltip-usage"></div>
+    </div>
 
     <footer>
       <div class="container spread-items">
@@ -80,9 +83,6 @@
       </div>
     </footer>
 
-    <script type="module" src="assets/js/lookup.js" defer></script>
-    <script type="module" src="assets/js/populate-placeholder.js" defer></script>
+    <script type="module" src="assets/js/visualize.js" defer></script>
   </body>
-
 </html>
-

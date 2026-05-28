@@ -1,18 +1,23 @@
 const IP_DATA_URL = new URL('https://ip-ranges.amazonaws.com/ip-ranges.json');
 
 async function retrieveFromAws() {
-  const ipDataResponse = await fetch(IP_DATA_URL, { signal: AbortSignal.timeout(10_000) });
+  const ipDataResponse = await fetch(IP_DATA_URL, {
+    signal: AbortSignal.timeout(10_000),
+  });
   const ipData = await ipDataResponse.json();
   const timestamp = Date.parse(ipDataResponse.headers.get('Last-Modified'));
   return {
     data: ipData,
     timestamp,
-  }
+  };
 }
 
 async function checkLatestAws() {
   try {
-    const response = await fetch(IP_DATA_URL, { method: 'HEAD', signal: AbortSignal.timeout(3_000) });
+    const response = await fetch(IP_DATA_URL, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(3_000),
+    });
     const timestamp = Date.parse(response.headers.get('Last-Modified'));
     return timestamp;
   } catch (e) {

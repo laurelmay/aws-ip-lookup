@@ -1,12 +1,13 @@
 import { getIpData } from './data-store.js';
 import { copyText } from './copy-text.js';
 import { CidrTrie, ipAddressVersion, IpVersion, parseCidr } from './ip-address.js';
+import { SERVICE_NAMES } from './constants.js';
 
 let currentLookupController = undefined;
 
 const DnsType = Object.freeze({
   A: 1,
-  AAAA: 28
+  AAAA: 28,
 });
 
 function looksLikeAnIpAddress(test) {
@@ -19,7 +20,7 @@ function createCopyButton(text) {
 
   const button = document.createElement('button');
   button.classList.add('copy-button');
-  button.title = "Copy"
+  button.title = 'Copy';
   button.appendChild(icon);
 
   button.onclick = () => copyText(text, button, icon);
@@ -28,10 +29,10 @@ function createCopyButton(text) {
 }
 
 function createCell(text, copyable) {
-  const cell = document.createElement("td");
+  const cell = document.createElement('td');
   const wrapper = document.createElement('div');
   const span = document.createElement('span');
-  const content = Array.isArray(text) ? text.join(", ") : text;
+  const content = Array.isArray(text) ? text.join(', ') : text;
   span.appendChild(document.createTextNode(content));
 
   wrapper.appendChild(span);
@@ -49,9 +50,9 @@ function getPrefix(match) {
 }
 
 function createRow(match) {
-  const row = document.createElement("tr");
+  const row = document.createElement('tr');
   const address = createCell(match.ipAddress, true);
-  address.scope = "row";
+  address.scope = 'row';
   address.dataset.label = 'Address';
   row.appendChild(address);
 
@@ -63,7 +64,7 @@ function createRow(match) {
   region.dataset.label = 'Region';
   row.appendChild(region);
 
-  const service = createCell(match.service);
+  const service = createCell(SERVICE_NAMES.get(match.service) ?? match.service);
   service.dataset.label = 'Service';
   row.appendChild(service);
 
@@ -74,13 +75,16 @@ function createRow(match) {
 }
 
 async function lookupDnsForHostname(name, type, signal) {
-  const response = await fetch('https://cloudflare-dns.com/dns-query?' + new URLSearchParams({ type, name }), {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/dns-json',
+  const response = await fetch(
+    'https://cloudflare-dns.com/dns-query?' + new URLSearchParams({ type, name }),
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/dns-json',
+      },
+      signal: AbortSignal.any([AbortSignal.timeout(3000), signal]),
     },
-    signal: AbortSignal.any([AbortSignal.timeout(3000), signal]),
-  });
+  );
   if (!response.ok) {
     return undefined;
   }
@@ -89,7 +93,7 @@ async function lookupDnsForHostname(name, type, signal) {
 }
 
 function getMatches(version, ipAddress) {
-  let matches = (version === IpVersion.IPV4) ? v4Trie.lookup(ipAddress) : v6Trie.lookup(ipAddress);
+  let matches = version === IpVersion.IPV4 ? v4Trie.lookup(ipAddress) : v6Trie.lookup(ipAddress);
 
   if (!matches?.length) {
     return [];
@@ -99,8 +103,14 @@ function getMatches(version, ipAddress) {
     return matches;
   }
 
-  const filtered = matches.filter(({ service }) => service !== 'AMAZON');
-  return filtered?.length ? filtered : matches;
+  const nonAmazon = matches.filter(({ service }) => service !== 'AMAZON');
+  if (!nonAmazon.length) {
+    return matches;
+  }
+  const maxNonAmazonMask = Math.max(...nonAmazon.map((m) => parseCidr(version, getPrefix(m)).mask));
+  return matches.filter(
+    (m) => m.service !== 'AMAZON' || parseCidr(version, getPrefix(m)).mask > maxNonAmazonMask,
+  );
 }
 
 async function handleLookup(signal) {
@@ -114,7 +124,7 @@ async function handleLookup(signal) {
   }
   if (text && new URL(window.location).searchParams?.get('lookup') !== text) {
     const newUrl = new URL(window.location);
-    newUrl.search = new URLSearchParams({ lookup: text }).toString()
+    newUrl.search = new URLSearchParams({ lookup: text }).toString();
     window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
   }
   const matches = [];
@@ -146,7 +156,7 @@ async function handleLookup(signal) {
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function showLoading() {
@@ -198,7 +208,7 @@ function handleSubmit() {
       if (matches?.length) {
         const rows = matches.map((match) => createRow(match));
         const tableBody = document.getElementById('table-body');
-        heading.innerText = lookup;
+        heading.textContent = lookup;
         heading.style.display = 'block';
         tableBody.replaceChildren(...rows);
         table.style.display = 'table';
@@ -206,10 +216,12 @@ function handleSubmit() {
         heading.style.display = 'none';
         notFound.appendChild(document.createTextNode('It looks like '));
         const codeNode = document.createElement('code');
-        codeNode.innerText = lookup;
+        codeNode.textContent = lookup;
         notFound.appendChild(codeNode);
         const isHostedText = !looksLikeAnIpAddress(lookup) ? ' hosted ' : ' ';
-        notFound.appendChild(document.createTextNode(` may not be${isHostedText}within AWS-owned IP space.`));
+        notFound.appendChild(
+          document.createTextNode(` may not be${isHostedText}within AWS-owned IP space.`),
+        );
         hideLoading();
         notFound.style.display = 'block';
       }
@@ -225,11 +237,11 @@ function handleSubmit() {
 const displayError = (error) => {
   const errorContainer = document.getElementById('error-container');
   const errorHead = document.createElement('span');
-  const errorMessage = document.createElement('span')
+  const errorMessage = document.createElement('span');
   errorHead.className = 'error-head';
-  errorHead.innerText = 'Unable to load data';
+  errorHead.textContent = 'Unable to load data';
   errorMessage.className = 'error-message';
-  errorMessage.innerText = error.toString();
+  errorMessage.textContent = error.toString();
 
   errorContainer.replaceChildren(
     errorHead,
@@ -242,9 +254,9 @@ const displayError = (error) => {
     const errorStack = document.createElement('details');
     const errorStackSummary = document.createElement('summary');
     const errorStackDetails = document.createElement('pre');
-    errorStackSummary.innerText = 'Error details';
+    errorStackSummary.textContent = 'Error details';
     errorStackDetails.className = 'error-stack-details';
-    errorStackDetails.innerText = error.stack;
+    errorStackDetails.textContent = error.stack;
     errorStack.className = 'error-stack';
     errorStack.appendChild(errorStackSummary);
     errorStack.appendChild(errorStackDetails);
@@ -252,7 +264,7 @@ const displayError = (error) => {
   }
 
   hideLoading();
-  errorContainer.style.display = "block";
+  errorContainer.style.display = 'block';
 };
 
 const v4Trie = new CidrTrie(IpVersion.IPV4);
@@ -269,7 +281,7 @@ const ready = (async () => {
       for (const prefix of ipData['ipv6_prefixes']) {
         v6Trie.add(prefix, 'ipv6_prefix');
       }
-    })
+    });
     submitButton.disabled = false;
   } catch (err) {
     displayError(err);
@@ -279,8 +291,8 @@ const ready = (async () => {
 document.getElementById('form').onsubmit = (event) => {
   event.preventDefault();
   handleSubmit();
-}
-document.getElementById('lookup').onfocus = ((event) => event.target.select());
+};
+document.getElementById('lookup').onfocus = (event) => event.target.select();
 
 async function loadFromUrl() {
   const urlInput = new URL(window.location).searchParams?.get('lookup');

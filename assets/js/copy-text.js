@@ -2,7 +2,6 @@ function temporarilySwapClass(node, { from, to }) {
   node.classList.remove(from);
   node.classList.add(to);
 
-
   setTimeout(() => {
     node.classList.remove(to);
     node.classList.add(from);
@@ -19,7 +18,10 @@ function temporarilyApplyClass(node, className) {
 export function copyText(text, button, icon) {
   const onSuccess = () => {
     temporarilyApplyClass(button, 'copy-success');
-    temporarilySwapClass(icon, { from: 'bi-copy', to: 'bi-clipboard-check-fill' });
+    temporarilySwapClass(icon, {
+      from: 'bi-copy',
+      to: 'bi-clipboard-check-fill',
+    });
   };
   const onFailure = () => {
     temporarilyApplyClass(button, 'copy-failure');

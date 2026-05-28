@@ -23,4 +23,5 @@ const placeholders = [
   '2600:1ffb:8000::/39',
 ];
 
-document.getElementById('lookup').placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
+document.getElementById('lookup').placeholder =
+  placeholders[Math.floor(Math.random() * placeholders.length)];

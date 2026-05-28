@@ -11,7 +11,8 @@ const v6SegmentRegex = '[0-9a-fA-F]{1,4}';
 // (specifically link-local and addresses that contain v4 addresses),
 // those are unlikely to be relevant in the case of looking up AWS-hosted
 // IP addresses.
-const v6AddressRegex = ('(' +
+const v6AddressRegex =
+  '(' +
   `(?:${v6SegmentRegex}:){7,7}${v6SegmentRegex}|` +
   `(?:${v6SegmentRegex}:){1,7}:|` +
   `(?:${v6SegmentRegex}:){1,6}:${v6SegmentRegex}|` +
@@ -19,8 +20,10 @@ const v6AddressRegex = ('(' +
   `(?:${v6SegmentRegex}:){1,4}(?::${v6SegmentRegex}){1,3}|` +
   `(?:${v6SegmentRegex}:){1,3}(?::${v6SegmentRegex}){1,5}|` +
   `${v6SegmentRegex}:(?::${v6SegmentRegex}){1,6}` +
-  ')');
-const v6CidrRegex = new RegExp(`^(?:${v6AddressRegex})(?:\\/(?:[0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$`);
+  ')';
+const v6CidrRegex = new RegExp(
+  `^(?:${v6AddressRegex})(?:\\/(?:[0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$`,
+);
 
 function isIpv4Address(address) {
   return v4CidrRegex.test(address);
@@ -37,10 +40,10 @@ function isIpv6Address(address) {
 
 export function ipAddressVersion(address) {
   if (isIpv4Address(address)) {
-    return IpVersion.IPV4
+    return IpVersion.IPV4;
   }
   if (isIpv6Address(address)) {
-    return IpVersion.IPV6
+    return IpVersion.IPV6;
   }
   return undefined;
 }
@@ -53,7 +56,7 @@ function ipV6AddressToNumber(address) {
   const emptySegment = segments.indexOf('');
   if (emptySegment !== -1) {
     while (segments.length < 8) {
-      segments.splice(emptySegment, 0, "");
+      segments.splice(emptySegment, 0, '');
     }
   }
 
@@ -69,13 +72,19 @@ export function parseCidr(version, cidr) {
     if (!isIpv4Address(address)) {
       throw new Error(`Invalid IPv4 Address: ${address}`);
     }
-    return { address: ipV4AddressToNumber(address), mask: parseInt(mask ?? 32, 10) };
+    return {
+      address: ipV4AddressToNumber(address),
+      mask: parseInt(mask ?? 32, 10),
+    };
   }
   if (version === IpVersion.IPV6) {
     if (!isIpv6Address(address)) {
       throw new Error(`Invalid IPv6 Address: ${address}`);
     }
-    return { address: ipV6AddressToNumber(address), mask: parseInt(mask ?? 128, 10) };
+    return {
+      address: ipV6AddressToNumber(address),
+      mask: parseInt(mask ?? 128, 10),
+    };
   }
 }
 
@@ -114,7 +123,7 @@ export class CidrTrie {
 
   lookup(ipAddress) {
     const data = this.#query(parseCidr(this.version, ipAddress));
-    return data.map((d) => ({...d, ipAddress}));
+    return data.map((d) => ({ ...d, ipAddress }));
   }
 
   #nextBit(address, depth) {
@@ -146,5 +155,25 @@ export class CidrTrie {
     const accumulated = node.isTerminal ? [...data, ...node.data] : data;
     const child = this.#nextBit(cidr.address, depth) === 0n ? node.child0 : node.child1;
     return this.#query(cidr, child, depth + 1, accumulated);
+  }
+
+  *entries() {
+    yield* this.#walkEntries(this.root, 0n, 0);
+  }
+
+  *#walkEntries(node, address, depth) {
+    if (node === null) {
+      return;
+    }
+    if (node.isTerminal) {
+      yield { address, mask: depth, data: node.data };
+    }
+    const bitPos = BigInt((this.version === IpVersion.IPV4 ? 31 : 127) - depth);
+    if (node.child0) {
+      yield* this.#walkEntries(node.child0, address, depth + 1);
+    }
+    if (node.child1) {
+      yield* this.#walkEntries(node.child1, address | (1n << bitPos), depth + 1);
+    }
   }
 }
