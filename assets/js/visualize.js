@@ -1,5 +1,5 @@
 import { getIpData } from './data-store.js';
-import { CidrTrie, IpVersion } from './ip-address.js';
+import { CidrTrie, IpVersion, parseCidr } from './ip-address.js';
 import { SERVICE_COLORS, SERVICE_NAMES } from './constants.js';
 
 const hexToRgb = (hex) => {
@@ -16,19 +16,40 @@ const CELL_TINT_MIN = 0.025;
 const CELL_PX = 64;
 const CELLS_PER_ROW = 16;
 const MAX_DRILL_MASK = { v4: 32, v6: 128 };
+const STATE_ENCODER = new TextEncoder();
+const STATE_DECODER = new TextDecoder("utf-8");
+const IPV4_MAX_VALUE = (1n << 32n) - 1n;
+const IPV6_MAX_VALUE = (1n << 128n) - 1n;
 
 const state = { version: 'v4', path: [] };
 let currentDrillState = null;
 
 const stateJsonReplacer = (key, value) => {
-  if (typeof value === 'bigint') {
-    return value.toString() + 'n';
+  if (key === 'path') {
+    if (!Array.isArray(value)) {
+      return value;
+    }
+    if (value.some(({addr, mask}) => typeof(addr) !== 'bigint' || typeof(mask) !== 'number')) {
+      return value;
+    }
+    return value
+      // This is an imperfect way to detect but it's good enough for the currently-assigned
+      // values of IPv6 addresses used in the ip-ranges.json file.
+      .map(({ addr, mask }) => formatCidr(addr, mask, addr >= IPV4_MAX_VALUE ? IpVersion.IPV6 : IpVersion.IPV4));
   }
   return value;
 };
 const stateJsonReviver = (key, value) => {
-  if (typeof value === 'string' && /^\d+n$/.test(value)) {
-    return BigInt(value.slice(0, -1));
+  if (key === 'path') {
+    if (!Array.isArray(value)) {
+      return value;
+    }
+    if (value.some((s) => typeof(s) !== 'string')) {
+      return value;
+    }
+    return value
+      .map((s) => parseCidr(s.includes(':') ? IpVersion.IPV6 : IpVersion.IPV4, s))
+      .map(({address, mask}) => ({ addr: address, mask }));
   }
   return value;
 };
@@ -495,6 +516,7 @@ const renderBreadcrumb = (el) => {
         ? crumb(fmt(addr, mask), true, null)
         : crumb(fmt(addr, mask), true, () => {
             state.path = state.path.slice(0, i + 1);
+            pushStateToUrl();
             render();
           }),
     );
@@ -502,19 +524,86 @@ const renderBreadcrumb = (el) => {
 };
 
 const pushStateToUrl = () => {
-  const stateStr = btoa(JSON.stringify(state, stateJsonReplacer));
+  const dataArray = STATE_ENCODER.encode(JSON.stringify(state, stateJsonReplacer));
+  const stateStr = dataArray.toBase64({ alphabet: 'base64url', omitPadding: true });
   const newUrl = new URL(window.location);
   newUrl.search = new URLSearchParams({ state: stateStr }).toString();
   window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
 };
 
+const assertStateValid = (candidateState) => {
+  const { version, path } = candidateState;
+  if (!['v4','v6'].includes(version)) {
+    throw new Error(`Invalid version: ${version}`);
+  }
+  if (!Array.isArray(path)) {
+    throw new Error(`State path is not an array`);
+  }
+  if (path.length >= MAX_DRILL_MASK[version] / 8) {
+    throw new Error(`Path too long: ${path.length}`);
+  }
+  let prev = undefined;
+  for (const [idx, cidr] of path.entries()) {
+    const expectedMask = (idx + 1) * 8;
+    if (typeof(cidr.addr) !== 'bigint' || typeof(cidr.mask) !== 'number') {
+      throw new Error(`Invalid data types [${typeof(cidr.addr)}, ${typeof(cidr.mask)}`);
+    }
+    if (cidr.mask % 8 !== 0 || cidr.mask === 0) {
+      throw new Error(`Invalid mask: ${cidr.mask}`);
+    }
+    if (cidr.mask !== expectedMask) {
+      throw new Error(`Invalid mask (out of order?): ${cidr.mask}@${idx}`);
+    }
+    if (cidr.mask >= MAX_DRILL_MASK[version]) {
+      throw new Error(`Invalid mask: ${cidr.mask}`);
+    }
+    if (version === 'v4') {
+      if (cidr.addr > IPV4_MAX_VALUE) {
+        throw new Error(`Invalid addr: ${cidr.addr}`);
+      }
+    }
+    if (version === 'v6') {
+      // This is an imperfect check but it's good enough for the IPv6 addresses
+      // currently assigned to AWS (and that's likely to be the case for the
+      // foreseeable future).
+      if (cidr.addr < IPV4_MAX_VALUE || cidr.addr > IPV6_MAX_VALUE) {
+        throw new Error(`Invalid addr: ${cidr.addr}`);
+      }
+    }
+    const totalBits = version === 'v4' ? 32n : 128n;
+    const hostBits = BigInt(totalBits - BigInt(cidr.mask));
+    if (hostBits > 0n && (cidr.addr & ((1n << hostBits) - 1n)) !== 0n) {
+      throw new Error(`Unaligned addr for /${cidr.mask}: ${cidr.addr}`);
+    }
+    if (prev) {
+      const shift = totalBits - BigInt(prev.mask);
+      if ((cidr.addr >> shift) !== (prev.addr >> shift)) {
+        throw new Error(`Path element ${idx} is not contained within its parent`);
+      }
+    }
+    prev = cidr;
+  }
+};
+
 const loadStateFromUrl = () => {
-  const urlStateRaw = new URL(window.location).searchParams.get('state');
-  if (urlStateRaw) {
-    const urlState = JSON.parse(atob(urlStateRaw), stateJsonReviver);
-    state.path = urlState.path;
-    state.version = urlState.version;
-  } else {
+  try {
+    const urlStateRaw = new URL(window.location).searchParams.get('state');
+    if (urlStateRaw) {
+      if (urlStateRaw.length > 1024) {
+        throw new Error('State too large');
+      }
+      const dataArray = Uint8Array.fromBase64(urlStateRaw, { alphabet: 'base64url', lastChunkHandling: 'loose'});
+      const jsonData = STATE_DECODER.decode(dataArray);
+      const urlState = JSON.parse(jsonData, stateJsonReviver);
+      assertStateValid(urlState);
+      state.path = urlState.path;
+      state.version = urlState.version;
+    } else {
+      state.path = [];
+      state.version = 'v4';
+    }
+  } catch (err) {
+    console.error("Failed to parse state", err);
     state.path = [];
     state.version = 'v4';
   }

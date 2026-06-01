@@ -68,22 +68,33 @@ function ipV6AddressToNumber(address) {
 
 export function parseCidr(version, cidr) {
   const [address, mask] = cidr.split('/');
+  if (mask !== undefined && !/^\d{1,3}$/.test(mask)) {
+    throw new Error(`Invalid mask ${mask}`);
+  }
   if (version === IpVersion.IPV4) {
     if (!isIpv4Address(address)) {
       throw new Error(`Invalid IPv4 Address: ${address}`);
     }
+    const cidrMask = parseInt(mask ?? 32, 10);
+    if (cidrMask > 32) {
+      throw new Error(`Invalid IPv4 Mask: ${mask}`);
+    }
     return {
       address: ipV4AddressToNumber(address),
-      mask: parseInt(mask ?? 32, 10),
+      mask: cidrMask,
     };
   }
   if (version === IpVersion.IPV6) {
     if (!isIpv6Address(address)) {
       throw new Error(`Invalid IPv6 Address: ${address}`);
     }
+    const cidrMask = parseInt(mask ?? 128, 10);
+    if (cidrMask > 128) {
+      throw new Error(`Invalid IPv6 Mask: ${mask}`);
+    }
     return {
       address: ipV6AddressToNumber(address),
-      mask: parseInt(mask ?? 128, 10),
+      mask: cidrMask,
     };
   }
 }
