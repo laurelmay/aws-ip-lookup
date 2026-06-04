@@ -524,11 +524,19 @@ const renderBreadcrumb = (el) => {
 };
 
 const pushStateToUrl = () => {
-  const dataArray = STATE_ENCODER.encode(JSON.stringify(state, stateJsonReplacer));
-  const stateStr = dataArray.toBase64({ alphabet: 'base64url', omitPadding: true });
-  const newUrl = new URL(window.location);
-  newUrl.search = new URLSearchParams({ state: stateStr }).toString();
-  window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
+  try {
+    const dataArray = STATE_ENCODER.encode(JSON.stringify(state, stateJsonReplacer));
+    const stateStr = dataArray.toBase64({ alphabet: 'base64url', omitPadding: true });
+    const newUrl = new URL(window.location);
+    newUrl.search = new URLSearchParams({ state: stateStr }).toString();
+    window.history.pushState({ path: newUrl.toString() }, '', newUrl.toString());
+  } catch (err) {
+    console.error("Failed to push state to URL", e);
+    // Just overwrite to remove the state tracking
+    const newUrl = new URL(window.location);
+    newUrl.search = undefined;
+    window.history.pushState(newUrl.toString(), '', newUrl.toString());
+  }
 };
 
 const assertStateValid = (candidateState) => {
