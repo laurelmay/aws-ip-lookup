@@ -8,9 +8,11 @@ on:
     branches: [main]
     paths:
       # Match the file types included in the copy command in the "Copy to S3" step
-      - '*.js'
-      - '*.css'
       - '*.html'
+      - '*.ico'
+      - 'assets/*'
+      # Or when this file is changed
+      - '.github/workflows/deploy.yaml'
   workflow_dispatch:
 
 jobs:
